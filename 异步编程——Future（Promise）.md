@@ -60,20 +60,18 @@ $promise->catchError(function($reason) {
 
 `Hprose\Future` 名空间内提供了 6 个工厂方法，它们分别是：
 
-* `value`
 * `resolve`
-* `error`
+* `value`
 * `reject`
+* `error`
 * `sync`
 * `promise`
 
-其中 `value` 和 `resolve` 功能完全相同，`error` 和 `reject` 功能完全相同。
+其中 `resolve` 和 `value` 功能完全相同，`reject` 和 `error` 功能完全相同。
 
-`value` 和 `error` 这两个方法名来自 Dart 语言的 `Future` 类。
+`resolve` 和 `reject` 这两个方法名则来自 ECMAScript 6 的 Promise 对象。
 
-而 `resolve` 和 `reject` 这两个方法名则来自 ECMAScript 6 的 Promise 对象。
-
-因为最初是按照 Dart 语言的 API 设计的，因此，这里保留了 `value` 和 `error` 这两个方法名。
+`value` 和 `error` 这两个方法名来自 Dart 语言的 `Future` 类。因为最初是按照 Dart 语言的 API 设计的，因此，这里保留了 `value` 和 `error` 这两个方法名。
 
 `sync` 功能跟 `Future` 含参构造方法类似，但在返回值的处理上有所不同。
 
