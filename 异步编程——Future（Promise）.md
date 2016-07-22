@@ -15,8 +15,42 @@ Hprose 2.0 之前的版本提供了一组 `Future`/`Completer` 的 API，其中 
 
 而在 Hprose 2.0 版本中，我们对 `Future` 的实现做了比较大的改进，现在它既兼容 Dart 的 `Future`/`Completer` 使用方式，又兼容 [Promise/A+ 规范](https://promisesaplus.com/)，而且还增加了许多非常实用的方法。下面我们就来对这些方法做一个全面的介绍。
 
-# Hprose\Future 名空间/类
+# 创建 Future/Promise 对象
 
-`Hprose\Future` 既是一个名空间，也是一个类。在该名空间下，定义了一些帮助函数和一些私有类。关于私有类，这里不做特别介绍，当某个函数或方法涉及到这些私有类时，再对其做特别说明。
+Hprose 中提供了多种方法来创建 Future/Promise 对象。为了方便讲解，在后面我们不再详细区分 Future 对象和 Promise 对象实例的差别，统一称为 `promise` 对象。
 
+## 使用 Future 构造器
+
+### 创建一个待定（pending）状态 promise 对象
+
+```php
+use Hprose\Future;
+$promise = new Future();
+```
+
+该 `promise` 对象的结果尚未确定，可以在将来通过 `resolve` 方法来设定其成功值，或通过 `reject` 方法来设定其失败原因。
+
+### 创建一个成功（fulfilled）状态的 promise 对象
+
+```php
+use Hprose\Future;
+$promise = new Future(function() { return 'hprose'; });
+$promise->then(function($value) {
+    var_dump($value);
+});
+```
+
+该 `promise` 对象中已经包含了成功值，可以使用 `then` 方法来得到它。
+
+### 创建一个失败（rejected）状态的 promise 对象
+
+```php
+use Hprose\Future;
+$promise = new Future(function() { throw new Exception('hprose'); });
+$promise->catchError(function($reason) {
+    var_dump($reason);
+});
+```
+
+该 `promise` 对象中已经包含了失败值，可以使用 `catchError` 方法来得到它。
 
