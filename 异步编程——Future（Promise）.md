@@ -76,3 +76,15 @@ $promise->catchError(function($reason) {
 `sync` 功能跟 `Future` 含参构造方法类似，但在返回值的处理上有所不同。
 
 `promise` 方法跟 `Promise` 类的构造方法类似，但返回的是一个 `Future` 类型的对象，而 `Promise` 构造方法返回的是一个 `Promise` 类的对象，`Promise` 类是 `Future` 类的子类，但除了构造函数不同以外，其它都完全相同。
+
+### 创建一个成功（fulfilled）状态的 promise 对象
+
+```javascript
+use Hprose\Future;
+$promise = Future\value('hprose'); // 换成 Future\resolve('hprose') 效果一样
+$promise->then(function($value) {
+    var_dump($value);
+});
+```
+
+使用 `value` 或 `resolve` 来创建一个成功（fulfilled）状态的 `promise` 对象效果跟前面用 `Future` 构造器创建的效果一样，但是写起来更加简单，不再需要把结果放入一个函数中作为返回值返回了。
