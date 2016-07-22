@@ -94,7 +94,7 @@ $promise->then(function($value) {
 ```php
 use Hprose\Future;
 $e = new Exception('hprose');
-$promise = Future\error(); // 换成 Future\reject($e) 效果一样
+$promise = Future\error($e); // 换成 Future\reject($e) 效果一样
 $promise->catch(function($reason) {
     var_dump($reason);
 });
