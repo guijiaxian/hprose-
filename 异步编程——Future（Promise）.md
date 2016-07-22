@@ -15,3 +15,8 @@ Hprose 2.0 之前的版本提供了一组 `Future`/`Completer` 的 API，其中 
 
 而在 Hprose 2.0 版本中，我们对 `Future` 的实现做了比较大的改进，现在它既兼容 Dart 的 `Future`/`Completer` 使用方式，又兼容 [Promise/A+ 规范](https://promisesaplus.com/)，而且还增加了许多非常实用的方法。下面我们就来对这些方法做一个全面的介绍。
 
+# Hprose\Future 名空间/类
+
+`Hprose\Future` 既是一个名空间，也是一个类。在该名空间下，定义了一些帮助函数和一些私有类。关于私有类，这里不做特别介绍，当某个函数或方法涉及到这些私有类时，再对其做特别说明。
+
+
