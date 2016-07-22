@@ -79,7 +79,7 @@ $promise->catchError(function($reason) {
 
 ### 创建一个成功（fulfilled）状态的 promise 对象
 
-```javascript
+```php
 use Hprose\Future;
 $promise = Future\value('hprose'); // 换成 Future\resolve('hprose') 效果一样
 $promise->then(function($value) {
@@ -88,3 +88,17 @@ $promise->then(function($value) {
 ```
 
 使用 `value` 或 `resolve` 来创建一个成功（fulfilled）状态的 `promise` 对象效果跟前面用 `Future` 构造器创建的效果一样，但是写起来更加简单，不再需要把结果放入一个函数中作为返回值返回了。
+
+### 创建一个失败（rejected）状态的 promise 对象
+
+```php
+use Hprose\Future;
+$promise = Future\error(new Exception('hprose')); // 换成 Future\reject(new Exception('hprose')) 效果一样
+$promise->catch(function($reason) {
+    var_dump($reason);
+});
+```
+
+使用 `error` 或 `reject` 来创建一个失败（rejected）状态的 `promise` 对象效果跟前面用 `Future` 构造器创建的效果也一样，但是写起来也更加简单，不再需要把失败原因放入一个函数中作为异常抛出了。
+
+注意，这里的 `error`（或 `reject`）函数的参数并不要求必须是异常类型的对象，但最好是使用异常类型的对象。否则你的程序很难进行调试和统一处理。
