@@ -532,3 +532,12 @@ mixed callback(mixed $carry, mixed $item);
 ```
 
 关于该方法的更多描述可以参见 PHP 手册中的 `array_reduce` 方法。
+
+## search 方法
+
+```php
+$promise->search($searchElement, $strict = false);
+```
+
+如果 `promise` 对象中包含的是一个数组，那么使用该方法可以在 `promise` 对象所包含的数组中查找 `$searchElement` 元素，返回值以 `promise` 对象形式返回，如果找到，返回的 `promise` 对象中将包含该元素对应的 `key`，否则为 `false`。当 `$strict` 为 `true` 时，使用 `===` 运算符进行相等测试。
+
