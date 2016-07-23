@@ -448,3 +448,18 @@ $promise->then(function($array) use ($onfulfilledArray) {
 
 $promise->spread($onfulfilledArray);
 ```
+
+## each 方法
+
+```php
+$promise->each($callback);
+```
+
+如果 `promise` 对象中包含的是一个数组，那么使用该方法可以对该数组进行遍历。$callback 回调方法的格式如下：
+
+```php
+function callback([mixed $value[, mixed $key[, array $array]]]);
+```
+
+三个参数都是可选的，但通常至少会保留一个参数。
+
