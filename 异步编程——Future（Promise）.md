@@ -505,3 +505,30 @@ bool callback([mixed $value[, mixed $key[, array $array]]]);
 
 三个参数都是可选的，但通常至少会有一个参数。
 
+## map 方法
+
+```php
+$promise->map($callback);
+```
+
+如果 `promise` 对象中包含的是一个数组，那么使用该方法可以遍历数组中的每一个元素并执行回调 `$callback`，`$callback` 的返回值所组成的数组将作为 `map` 返回结果的 `promise` 对象所包含的值。`$callback` 回调方法的格式如下：
+
+```php
+mixed callback([mixed $value[, mixed $key[, array $array]]]);
+```
+
+三个参数都是可选的，但通常至少会有一个参数。
+
+## reduce 方法
+
+```php
+$promise->reduce($callback, $initial = NULL);
+```
+
+如果 `promise` 对象中包含的是一个数组，那么使用该方法可以遍历数组中的每一个元素并执行回调 `$callback`，`$callback` 的第一个参数为 $initial 的值或者上一次调用的返回值。最后一次 $callback 的返回结果作为 `promise` 对象所包含的值。`$callback` 回调方法的格式如下：
+
+```php
+mixed callback(mixed $carry, mixed $item);
+```
+
+关于该方法的更多描述可以参见 PHP 手册中的 `array_reduce` 方法。
