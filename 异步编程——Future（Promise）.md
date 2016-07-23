@@ -249,3 +249,7 @@ string(6) "hprose"
 bool(true)
 ```
 >
+
+`Future/Completer` 这套 API 来自 Dart 语言，首先通过 `Completer` 构造器创建一个 `completer` 对象，然后通过 `completer` 对象上的 `future` 方法返回 `promise` 对象。通过 `completer` 的 `complete` 方法可以设置成功值。通过 `completeError` 方法可以设置失败原因。通过 `isCompleted` 方法，可以查看当前状态是否为已完成（在这里，成功（fulfilled）或失败（rejected）都算完成状态）。
+
+在 Hprose 2.0 之前的版本中，这是唯一可用的方法。但在 Hprose 2.0 中，该方式已经被其他方式所代替。仅为兼容旧版本而保留。
