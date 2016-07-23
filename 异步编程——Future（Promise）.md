@@ -864,16 +864,7 @@ Array
                     [message:protected] => x
                     [string:Exception:private] => 
                     [code:protected] => 0
-                    [file:protected] => /Users/andot/Git/hprose-php/examples/src/settle.php
-                    [line:protected] => 7
-                    [trace:Exception:private] => Array
-                        (
-                        )
-
-                    [previous:Exception:private] => 
-                )
-
-        )
-
-)
+...
 ```
+
+上面输出中 `...` 表示省略掉的内容。
