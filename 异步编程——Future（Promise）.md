@@ -841,7 +841,6 @@ Future\settle(array(true, $p1, $p2))->then('print_r');
 
 输出结果为：
 
->
 ```
 Array
 (
@@ -878,4 +877,3 @@ Array
 
 )
 ```
->
