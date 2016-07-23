@@ -793,3 +793,89 @@ array(3) {
 }
 ```
 >
+
+## race 函数
+
+```php
+Future race(mixed $array);
+```
+
+该方法返回一个 `promise` 对象，这个 `promise` 在数组参数中的任意一个 `promise` 被设置为成功（fulfilled）或失败（rejected）后，立刻以相同的成功值被设置为成功（fulfilled）或以相同的失败原因被设置为失败（rejected）。
+
+## any 函数
+
+```php
+Future any(mixed $array);
+```
+
+该方法是 `race` 函数的改进版。
+
+对于 `race` 函数，如果输入的数组为空，返回的 `promise` 对象将永远保持为待定（pending）状态。
+
+而对于 `any` 函数，如果输入的数组为空，返回的 `promise` 对象将被设置为失败状态，失败原因是一个 `RangeException` 对象。
+
+对于 `race` 函数，数组参数中的任意一个 `promise` 被设置为成功（fulfilled）或失败（rejected）后，返回的 `promise` 对象就会被设定为成功（fulfilled）或失败（rejected）状态。
+
+而对于 `any` 函数，只有当数组参数中的所有 `promise` 被设置为失败状态时，返回的 `promise` 对象才会被设定为失败状态。否则，返回的 `promise` 对象被设置为第一个被设置为成功（fulfilled）状态的成功值。
+
+这两个函数通常跟计时器或者并发请求一起使用，用来获取最早完成的结果。
+
+## settle 函数
+
+```php
+Future settle(mixed $array)
+```
+
+该方法返回一个 `promise` 对象，该 `promise` 对象会在数组参数内的所有 `promise` 都被设置为成功（fulfilled）状态或失败（rejected）状态时，才被设置为成功（fulfilled）状态，其值为数组参数中所有 `promise` 对象的 `inspect` 方法返回值，其数组元素与原数组元素一一对应。
+
+例如：
+
+```php
+use Hprose\Future;
+
+$p1 = Future\resolve(3);
+$p2 = Future\reject(new Exception("x"));
+
+Future\settle(array(true, $p1, $p2))->then('print_r');
+```
+
+输出结果为：
+
+>
+```
+Array
+(
+    [0] => Array
+        (
+            [state] => fulfilled
+            [value] => 1
+        )
+
+    [1] => Array
+        (
+            [state] => fulfilled
+            [value] => 3
+        )
+
+    [2] => Array
+        (
+            [state] => rejected
+            [reason] => Exception Object
+                (
+                    [message:protected] => x
+                    [string:Exception:private] => 
+                    [code:protected] => 0
+                    [file:protected] => /Users/andot/Git/hprose-php/examples/src/settle.php
+                    [line:protected] => 7
+                    [trace:Exception:private] => Array
+                        (
+                        )
+
+                    [previous:Exception:private] => 
+                )
+
+        )
+
+)
+```
+>
