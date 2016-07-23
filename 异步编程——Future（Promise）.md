@@ -18,6 +18,7 @@ Hprose 2.0 之前的版本提供了一组 `Future`/`Completer` 的 API，其中 
 注意：下面的例子中，为了突出重点，代码中均省略了：
 
 ```php
+<?php
 require_once "vendor/autoload.php";
 ```
 
@@ -112,7 +113,7 @@ $promise->catch(function($reason) {
 
 注意，这里的 `error`（或 `reject`）函数的参数并不要求必须是异常类型的对象，但最好是使用异常类型的对象。否则你的程序很难进行调试和统一处理。
 
-## 通过 Future\sync 方法来创建 promise 对象
+### 通过 Future\sync 方法来创建 promise 对象
 
 `Future` 上提供了一个：
 
@@ -183,7 +184,7 @@ array(2) {
 
 即通过 `Future` 构造方法返回的 `promise` 对象中的数据，按原样返回。而通过 `sync` 函数返回的 `promise` 对象中的数据中如果包含有 `promise` 对象，则会将其转换为实际值。
 
-## 通过 Future\promise 方法来创建 promise 对象
+### 通过 Future\promise 方法来创建 promise 对象
 
 该方法的参数跟 ECMAScript 6 的 `Promise` 构造器的参数相同，不同的是，使用该方法创建 `promise` 对象时，不需要使用 `new` 关键字。另外一点不同是，该方法创建的 `promise` 对象一定是 `Future` 的实例对象，而通过 `Promise` 构造器创建的 `promise` 对象是 `Promise` 实例对象。
 
@@ -210,5 +211,41 @@ $p->then(function($value) {
 >
 ```
 string(2) "OK"
+```
+>
+
+## 通过 Promise 构造方法来创建 promise 对象
+
+```php
+use Hprose\Promise;
+$p = new Promise(function($reslove, $reject) { ... });
+```
+
+该构造方法的参数跟 `Future\promise` 函数的参数一致，这里就不再单独举例了。
+
+`Promise` 构造方法的参数可以省略，省略时，行为跟 `Future` 构造方法省略参数一致。这里也不再单独举例。
+
+## 通过 Completer 来创建 promise 对象
+
+```php
+use Hprose\Completer;
+
+$completer = new Completer();
+$promise = $completer->future();
+$promise->then(function($value) {
+    var_dump($value);
+});
+var_dump($completer->isCompleted());
+$completer->complete('hprose');
+var_dump($completer->isCompleted());
+```
+
+运行结果为：
+
+>
+```
+bool(false)
+string(6) "hprose"
+bool(true)
 ```
 >
