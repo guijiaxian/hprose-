@@ -15,6 +15,14 @@ Hprose 2.0 之前的版本提供了一组 `Future`/`Completer` 的 API，其中 
 
 而在 Hprose 2.0 版本中，我们对 `Future` 的实现做了比较大的改进，现在它既兼容 Dart 的 `Future`/`Completer` 使用方式，又兼容 [Promise/A+ 规范](https://promisesaplus.com/)，而且还增加了许多非常实用的方法。下面我们就来对这些方法做一个全面的介绍。
 
+注意：下面的例子中，为了突出重点，有些代码中省略了：
+
+```php
+require_once "vendor/autoload.php";
+```
+
+请读者自行脑补。
+
 # 创建 Future/Promise 对象
 
 Hprose 中提供了多种方法来创建 Future/Promise 对象。为了方便讲解，在后面我们不再详细区分 Future 对象和 Promise 对象实例的差别，统一称为 `promise` 对象。
@@ -103,3 +111,74 @@ $promise->catch(function($reason) {
 使用 `error` 或 `reject` 来创建一个失败（rejected）状态的 `promise` 对象效果跟前面用 `Future` 构造器创建的效果也一样，但是写起来也更加简单，不再需要把失败原因放入一个函数中作为异常抛出了。
 
 注意，这里的 `error`（或 `reject`）函数的参数并不要求必须是异常类型的对象，但最好是使用异常类型的对象。否则你的程序很难进行调试和统一处理。
+
+### 同步创建一个 promise 对象
+
+`Future` 上提供了一个：
+
+```php
+Future\sync($computation);
+```
+
+方法可以让我们同步的创建一个 `promise` 对象。
+
+实际上，Hprose for PHP 的 `Future` 构造方法也是同步的，这一点跟 JavaScript 版本的有所不同。`sync` 函数跟 `Futrue` 构造方法区别在于结果上，我们来看一个例子：
+
+```php
+require_once "vendor/autoload.php";
+
+use Hprose\Future;
+
+$p1 = new Future(function() {
+    return array(Future\value(1), Future\value(2));
+});
+$p1->then(function($value) {
+    var_dump($value);
+});
+
+$p2 = Future\sync(function() {
+    return array(Future\value(1), Future\value(2));
+});
+$p2->then(function($value) {
+    var_dump($value);
+});
+```
+
+该程序输出结果为：
+
+>
+```
+array(2) {
+  [0]=>
+  object(Hprose\Future)#5 (4) {
+    ["state"]=>
+    int(1)
+    ["value"]=>
+    int(1)
+    ["reason"]=>
+    NULL
+    ["subscribers":"Hprose\Future":private]=>
+    array(0) {
+    }
+  }
+  [1]=>
+  object(Hprose\Future)#6 (4) {
+    ["state"]=>
+    int(1)
+    ["value"]=>
+    int(2)
+    ["reason"]=>
+    NULL
+    ["subscribers":"Hprose\Future":private]=>
+    array(0) {
+    }
+  }
+}
+array(2) {
+  [0]=>
+  int(1)
+  [1]=>
+  int(2)
+}
+```
+>
