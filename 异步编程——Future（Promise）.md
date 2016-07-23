@@ -455,11 +455,53 @@ $promise->spread($onfulfilledArray);
 $promise->each($callback);
 ```
 
-如果 `promise` 对象中包含的是一个数组，那么使用该方法可以对该数组进行遍历。$callback 回调方法的格式如下：
+如果 `promise` 对象中包含的是一个数组，那么使用该方法可以对该数组进行遍历。`$callback` 回调方法的格式如下：
 
 ```php
 function callback([mixed $value[, mixed $key[, array $array]]]);
 ```
 
-三个参数都是可选的，但通常至少会保留一个参数。
+三个参数都是可选的，但通常至少会有一个参数。
+
+## every 方法
+
+```php
+$promise->every($callback);
+```
+
+如果 `promise` 对象中包含的是一个数组，那么使用该方法可以遍历数组中的每一个元素并执行回调 `$callback`，当所有 `$callback` 的返回值都为 `true` 时，结果为 `true`，否则为 `false`。$callback 回调方法的格式如下：
+
+```php
+bool callback([mixed $value[, mixed $key[, array $array]]]);
+```
+
+三个参数都是可选的，但通常至少会有一个参数。
+
+## some 方法
+
+```php
+$promise-> some($callback);
+```
+
+如果 `promise` 对象中包含的是一个数组，那么使用该方法可以遍历数组中的每一个元素并执行回调 `$callback`，当任意一个 `$callback` 的返回值为 `true` 时，结果为 `true`，否则为 `false`。`$callback` 回调方法的格式如下：
+
+```php
+bool callback([mixed $value[, mixed $key[, array $array]]]);
+```
+
+三个参数都是可选的，但通常至少会有一个参数。
+
+## filter 方法
+
+```php
+$promise->filter($callback);
+```
+
+如果 `promise` 对象中包含的是一个数组，那么使用该方法可以遍历数组中的每一个元素并执行回调 `$callback`，`$callback` 的返回值为 `true` 的元素所组成的数组将作为 `filter` 返回结果的 `promise` 对象所包含的值。`$callback` 回调方法的格式如下：
+
+```php
+bool callback([mixed $value[, mixed $key[, array $array]]]);
+```
+
+三个参数都是可选的，但通常至少会有一个参数。
 
