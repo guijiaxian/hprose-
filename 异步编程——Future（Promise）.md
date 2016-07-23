@@ -574,6 +574,58 @@ $promise->includes($searchElement, $strict = false);
 
 表示当前对象的成功值，只在 `state` 属性为 `FULFILLED` 时有效，该属性为只读属性。
 
-## $reason 属性
+## reason 属性
 
 表示当前对象的失败值，只在 `state` 属性为 `REJECTED` 时有效，该属性为只读属性。
+
+# Hprose\Future 名空间中的函数
+
+## isFuture 函数
+
+```php
+bool isFuture(mixed $obj);
+```
+
+判断参数 $obj 是否为 `Future` 对象。
+
+例如：
+
+```php
+use Hprose\Future;
+
+var_dump(Future\isFuture(123));
+var_dump(Future\isFuture(Future\value(123)));
+```
+
+运行结果为：
+
+>
+```
+bool(false)
+bool(true)
+```
+>
+
+## toFuture 函数
+
+```php
+Future toFuture(mixed $obj);
+```
+
+如果 `$obj` 为 `Future` 对象则原样返回，否则返回 `Future\value($obj)`。
+
+## toPromise 函数
+
+```php
+Future toPromise(mixed $obj);
+```
+
+该方法同 `toFuture` 函数类似。
+
+如果 $obj 为生成器，则该方法将把生成器作为协程执行并以 `promise` 对象返回该协程的执行结果。
+
+如果 $obj 为数组，数组中的元素如果包含有 `promise` 对象，则返回的 `promise` 对象中所包含的数组的元素将为原 `promise` 元素对象的包含值。
+
+如果 $obj 为对象，如果对象的属性包含有 `promise` 对象，则返回的 `promise` 对象中所包含的对象的属性为原 `promise` 属性对象的包含值。
+
+其他情况跟 `toFuture` 一致。
