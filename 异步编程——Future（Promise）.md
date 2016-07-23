@@ -552,3 +552,5 @@ $promise->includes($searchElement, $strict = false);
 ## 魔术方法 __call 和 __get
 
 `Future` 类上还定义了 __get 和 __call 这两个魔术方法，当 `promise` 对象中包含的值为 `object` 对象时，可以直接获取它的属性和调用它的方法。但是需要注意的是，返回的属性值是一个 `promise` 对象。调用方法的返回值也是一个 `promise` 对象，而且调用方法时，参数也可以是 `promise` 对象，即使原来的方法并不支持 `promise` 参数。因为在实际调用时，`__call` 会自动将 `promise` 的参数值转换为实际包含的值进行调用。
+
+这在一定程度上可以使得异步代码在编写时看上去像是同步代码。
