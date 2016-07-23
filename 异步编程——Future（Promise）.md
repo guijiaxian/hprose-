@@ -253,3 +253,66 @@ bool(true)
 `Future/Completer` 这套 API 来自 Dart 语言，首先通过 `Completer` 构造器创建一个 `completer` 对象，然后通过 `completer` 对象上的 `future` 方法返回 `promise` 对象。通过 `completer` 的 `complete` 方法可以设置成功值。通过 `completeError` 方法可以设置失败原因。通过 `isCompleted` 方法，可以查看当前状态是否为已完成（在这里，成功（fulfilled）或失败（rejected）都算完成状态）。
 
 在 Hprose 2.0 之前的版本中，这是唯一可用的方法。但在 Hprose 2.0 中，该方式已经被其他方式所代替。仅为兼容旧版本而保留。
+
+# Future 类上的基本方法
+
+## then 方法
+
+`then` 方法是 `Promise` 的核心和精髓所在。它有两个参数：`$onfulfill`, `$onreject`。这两个参数皆为 `callable` 类型。当它们不是 `callable` 类型时，它们将会被忽略。当 `promise` 对象状态为待定（pending）时，这两个回调方法都不会执行，直到 `promise` 对象的状态变为成功（fulfilled）或失败（rejected）。当 `promise` 对象状态为成功（fulfilled）时，`$onfulfill` 函数会被回调，参数值为成功值。当 `promise` 对象状态为失败（rejected）时，`$onreject` 函数会被回调，参数值为失败原因。
+
+`then` 方法的返回值是一个新的 `promise` 对象，它的值由 `$onfulfill` 或 `$onreject` 的返回值或抛出的异常来决定。如果`$onfulfill` 或 `$onreject` 在执行过程中没有抛出异常，那么新的 `promise` 对象的状态为成功（fulfilled），其值为 `$onfulfill` 或 `$onreject` 的返回值。如果这两个回调中抛出了异常，那么新的 `promise` 对象的状态将被设置为失败（rejected），抛出的异常作为新的 `promise` 对象的失败原因。
+
+同一个 `promise` 对象的 `then` 方法可以被多次调用，其值不会因为调用 `then` 方法而改变。当 `then` 方法被多次调用时，所有的 `$onfulfill`, `$onreject` 将按照原始的调用顺序被执行。
+
+因为 `then` 方法的返回值还是一个 `promise` 对象，因此可以使用链式调用的方式实现异步编程串行化。
+
+当 `promise` 的成功值被设置为另一个 `promise` 对象（为了区分，将其命名为 `promise2`)时，`then` 方法中的两个回调函数得到的参数是 `promise2` 对象的最终展开值，而不是 `promise2` 对象本身。当 `promise2` 的最终展开值为成功值时，`$onfulfill` 函数会被调用，当 `promise2` 的最终展开值为失败原因时，`$onreject` 函数会被调用。
+
+当 `promise` 的失败原因被设置为另一个 `promise` 对象时，该对象会直接作为失败原因传给 `then` 方法的 `$onreject` 回调函数。因此最好不要这样做。
+
+关于 `then` 方法的用法，这里不单独举例，您将在其它的例子中看到它的用法。
+
+## done 方法
+
+跟 `then` 方法类似，但 `done` 方法没有返回值，不支持链式调用，因此在 `done` 方法的回调函数中，通常不会返回值。
+
+如果在 `done` 方法的回调中发生异常，会直接抛出，并且无法被捕获。
+
+因此，如果您不是在写单元测试，最好不要使用 `done` 方法。
+
+## catchError 方法
+
+```php
+$promise->catchError($onreject);
+```
+
+该方法是 `then(null, $onreject)` 的简化写法。
+
+```php
+$promise->catchError($onreject, $test);
+```
+
+该方法第一个参数 `$onreject` 跟上面的相同，第二个参数 `$test` 是一个测试函数（`callable` 类型）。当该测试函数返回值为 `true` 时，`$onreject` 才会执行。
+
+```php
+<?php
+require_once "../vendor/autoload.php";
+
+use Hprose\Future;
+
+$p = Future\reject(new OutOfRangeException());
+
+$p->catchError(function($reason) { return 'this is a OverflowException'; },
+               function($reason) { return $reason instanceof OverflowException; })
+  ->catchError(function($reason) { return 'this is a OutOfRangeException'; },
+               function($reason) { return $reason instanceof OutOfRangeException; })
+  ->then(function($value) { var_dump($value);  });
+```
+
+输出结果为：
+
+>
+```
+string(29) "this is a OutOfRangeException"
+```
+>
