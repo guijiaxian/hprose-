@@ -494,10 +494,10 @@ bool callback([mixed $value[, mixed $key[, array $array]]]);
 ## filter 方法
 
 ```php
-$promise->filter($callback);
+$promise->filter($callback, $preserveKeys = false);
 ```
 
-如果 `promise` 对象中包含的是一个数组，那么使用该方法可以遍历数组中的每一个元素并执行回调 `$callback`，`$callback` 的返回值为 `true` 的元素所组成的数组将作为 `filter` 返回结果的 `promise` 对象所包含的值。`$callback` 回调方法的格式如下：
+如果 `promise` 对象中包含的是一个数组，那么使用该方法可以遍历数组中的每一个元素并执行回调 `$callback`，`$callback` 的返回值为 `true` 的元素所组成的数组将作为 `filter` 返回结果的 `promise` 对象所包含的值。当参数 `$preserveKeys` 为 `true` 时，结果数组中的 元素所对应的 `key` 保持原来的 `key`，否则将返回以 0 为起始下标的连续数字下标的数组。`$callback` 回调方法的格式如下：
 
 ```php
 bool callback([mixed $value[, mixed $key[, array $array]]]);
