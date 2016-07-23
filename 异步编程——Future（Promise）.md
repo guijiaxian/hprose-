@@ -400,3 +400,16 @@ string(15) "reject protobuf"
 ```
 >
 
+## complete 方法
+
+该方法的回调函数 `oncomplete` 在不论成功还是失败的情况下都会执行，并且支持链式调用。相当于：`then(oncomplete, oncomplete)` 的简化写法。
+
+## always 方法
+
+该方法的回调函数 `oncomplete` 在不论成功还是失败的情况下都会执行，但不支持链式调用。相当于：`done(oncomplete, oncomplete)` 的简化写法。
+
+如果您不是在写单元测试，最好不要使用 `always` 方法。
+
+## fill 方法
+
+将当前 `promise` 对象的值充填到参数所表示的 `promise` 对象中。
