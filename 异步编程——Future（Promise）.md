@@ -742,3 +742,54 @@ object(stdClass)#10 (2) {
 >
 
 关于协程的例子，我们在后面介绍 Hprose 远程调用时再举，这里暂且不提。
+
+## all 函数
+
+```php
+Future all(mixed $array);
+```
+
+该方法的参数 `$array` 为数组或者值为数组的 `promise` 对象。该方法返回一个 `promise` 对象，该 `promise` 对象会在数组参数内的所有 `promise` 都被设置为成功（fulfilled）状态时，才被设置为成功（fulfilled）状态，其值为数组参数中所有 `promise` 对象的最终展开值组成的数组，其数组元素与原数组元素一一对应。
+
+## join 函数
+
+```php
+Future join(mixed arg1[, mixed arg1[, ...]]);
+```
+
+该方法的功能同 `all` 方法类似，但它与 `all` 方法的参数不同，我们来举例看一下它们的差别：
+
+```php
+use Hprose\Future;
+
+Future\all(array(1, Future\value(2), 3))->then(function($value) {
+    var_dump($value);
+});
+
+Future\join(1, Future\value(2), 3)->then(function($value) {
+    var_dump($value);
+});
+```
+
+运行结果为：
+
+>
+```
+array(3) {
+  [0]=>
+  int(1)
+  [1]=>
+  int(2)
+  [2]=>
+  int(3)
+}
+array(3) {
+  [0]=>
+  int(1)
+  [1]=>
+  int(2)
+  [2]=>
+  int(3)
+}
+```
+>
