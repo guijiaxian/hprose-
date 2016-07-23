@@ -254,7 +254,7 @@ bool(true)
 
 在 Hprose 2.0 之前的版本中，这是唯一可用的方法。但在 Hprose 2.0 中，该方式已经被其他方式所代替。仅为兼容旧版本而保留。
 
-# Future 类上的基本方法
+# Future 类上的方法
 
 ## then 方法
 
@@ -554,3 +554,14 @@ $promise->includes($searchElement, $strict = false);
 `Future` 类上还定义了 __get 和 __call 这两个魔术方法，当 `promise` 对象中包含的值为 `object` 对象时，可以直接获取它的属性和调用它的方法。但是需要注意的是，返回的属性值是一个 `promise` 对象。调用方法的返回值也是一个 `promise` 对象，而且调用方法时，参数也可以是 `promise` 对象，即使原来的方法并不支持 `promise` 参数。因为在实际调用时，`__call` 会自动将 `promise` 的参数值转换为实际包含的值进行调用。
 
 这在一定程度上可以使得异步代码在编写时看上去像是同步代码。
+
+# Future 类上的常量和属性
+
+## 常量
+```php
+    const PENDING = 0;
+    const FULFILLED = 1;
+    const REJECTED = 2;
+```
+
+这三个常量表示 `promise` 对象的状态。`PENDING` 表示结果待定。`FULFILLED` 表示成功。`REJECTED` 表示失败。
