@@ -541,3 +541,10 @@ $promise->search($searchElement, $strict = false);
 
 如果 `promise` 对象中包含的是一个数组，那么使用该方法可以在 `promise` 对象所包含的数组中查找 `$searchElement` 元素，返回值以 `promise` 对象形式返回，如果找到，返回的 `promise` 对象中将包含该元素对应的 `key`，否则为 `false`。当 `$strict` 为 `true` 时，使用 `===` 运算符进行相等测试。
 
+## includes 方法
+
+```php
+$promise->includes($searchElement, $strict = false);
+```
+
+该方法同 `search` 方法类似，只是在找到的情况下，仅仅返回包含 `true` 的 `promise` 对象。
