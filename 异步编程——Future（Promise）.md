@@ -15,7 +15,7 @@ Hprose 2.0 之前的版本提供了一组 `Future`/`Completer` 的 API，其中 
 
 而在 Hprose 2.0 版本中，我们对 `Future` 的实现做了比较大的改进，现在它既兼容 Dart 的 `Future`/`Completer` 使用方式，又兼容 [Promise/A+ 规范](https://promisesaplus.com/)，而且还增加了许多非常实用的方法。下面我们就来对这些方法做一个全面的介绍。
 
-注意：下面的例子中，为了突出重点，有些代码中省略了：
+注意：下面的例子中，为了突出重点，代码中均省略了：
 
 ```php
 require_once "vendor/autoload.php";
@@ -112,7 +112,7 @@ $promise->catch(function($reason) {
 
 注意，这里的 `error`（或 `reject`）函数的参数并不要求必须是异常类型的对象，但最好是使用异常类型的对象。否则你的程序很难进行调试和统一处理。
 
-### 同步创建一个 promise 对象
+## 通过 Future\sync 方法来创建 promise 对象
 
 `Future` 上提供了一个：
 
@@ -125,8 +125,6 @@ Future\sync($computation);
 实际上，Hprose for PHP 的 `Future` 构造方法也是同步的，这一点跟 JavaScript 版本的有所不同。`sync` 函数跟 `Futrue` 构造方法区别在于结果上，我们来看一个例子：
 
 ```php
-require_once "vendor/autoload.php";
-
 use Hprose\Future;
 
 $p1 = new Future(function() {
@@ -180,5 +178,37 @@ array(2) {
   [1]=>
   int(2)
 }
+```
+>
+
+即通过 `Future` 构造方法返回的 `promise` 对象中的数据，按原样返回。而通过 `sync` 函数返回的 `promise` 对象中的数据中如果包含有 `promise` 对象，则会将其转换为实际值。
+
+## 通过 Future\promise 方法来创建 promise 对象
+
+该方法的参数跟 ECMAScript 6 的 `Promise` 构造器的参数相同，不同的是，使用该方法创建 `promise` 对象时，不需要使用 `new` 关键字。另外一点不同是，该方法创建的 `promise` 对象一定是 `Future` 的实例对象，而通过 `Promise` 构造器创建的 `promise` 对象是 `Promise` 实例对象。
+
+```php
+use Hprose\Future;
+
+$p = Future\promise(function($resolve, $reject) {
+    $a = 1;
+    $b = 2;
+    if ($a != $b) {
+        $resolve('OK');
+    }
+    else {
+        $reject(new Exception("$a == $b"));
+    }
+});
+$p->then(function($value) {
+    var_dump($value);
+});
+```
+
+运行结果为：
+
+>
+```
+string(2) "OK"
 ```
 >
