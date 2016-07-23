@@ -354,3 +354,49 @@ array('state' => 'fulfilled', 'value' => $promise->value)
 array('state' => 'rejected', 'reason' => $promise->reason);
 ```
 
+## whenComplete 方法
+
+有时候，你不但想要在成功（fulfilled）时执行某段代码，而且在失败（rejected）时也想执行这段代码，那你可以使用 `whenComplete` 方法。该方法的参数为一个无参回调函数。该方法执行后会返回一个新的 `promise` 对象，除非在回调函数中抛出异常，否则返回的 `promise` 对象的值跟原 `promise` 对象的值相同。
+
+```php
+use Hprose\Future;
+
+$p1 = Future\resolve('resolve hprose');
+
+$p1->whenComplete(function() {
+    var_dump('p1 complete');
+})->then(function($value) {
+    var_dump($value);
+});
+
+$p2 = Future\reject(new Exception('reject thrift'));
+
+$p2->whenComplete(function() {
+    var_dump('p2 complete');
+})->catchError(function($reason) {
+    var_dump($reason->getMessage());
+});
+
+$p3 = Future\resolve('resolve protobuf');
+
+$p3->whenComplete(function() {
+    var_dump('p3 complete');
+    throw new Exception('reject protobuf');
+})->catchError(function($reason) {
+    var_dump($reason->getMessage());
+});
+```
+
+运行结果如下：
+
+>
+```
+string(11) "p1 complete"
+string(14) "resolve hprose"
+string(11) "p2 complete"
+string(13) "reject thrift"
+string(11) "p3 complete"
+string(15) "reject protobuf"
+```
+>
+
