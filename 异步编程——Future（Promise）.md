@@ -295,9 +295,6 @@ $promise->catchError($onreject, $test);
 该方法第一个参数 `$onreject` 跟上面的相同，第二个参数 `$test` 是一个测试函数（`callable` 类型）。当该测试函数返回值为 `true` 时，`$onreject` 才会执行。
 
 ```php
-<?php
-require_once "../vendor/autoload.php";
-
 use Hprose\Future;
 
 $p = Future\reject(new OutOfRangeException());
