@@ -868,5 +868,35 @@ Array
 ```
 
 >
-上面输出中 `...` 表示省略掉的内容。
+注：上面输出中 `...` 表示省略掉的内容。
+>
+
+## run 方法
+
+```php
+Future run(callable $handler[, mixed $arg1[, mixed $arg2[, ...]]]);
+```
+
+`run` 方法的作用是执行 `$handler` 函数并返回一个包含执行结果的 `promise` 对象，`$handler` 的参数分别为 `$arg1`, `$arg2`, ...。参数可以是普通值，也可以是 `promise` 对象，如果是 `promise` 对象，则等待其变为成功（fulfilled）状态时再将其成功值代入 `handler` 函数。如果变为失败（rejected）状态，`run` 返回的 `promise` 对象被设置为该失败原因。如果参数中，有多个 `promise` 对象变为失败（rejected）状态，则第一个变为失败状态的 `promise` 对象的失败原因被设置为 `run` 返回的 `promise` 对象的失败原因。当参数中的 `promise` 对象都变为成功（fulfilled）状态时，`$handler` 函数才会执行，如果在 `$handler` 执行的过程中，抛出了异常，则该异常作为 `run` 返回的 `promise` 对象的失败原因。如果没有异常，则 `$handler` 函数的返回值，作为 `run` 返回的 `promise` 对象的成功值。
+
+例如：
+
+```php
+use Hprose\Future;
+
+function add($a, $b) {
+    return $a + $b;
+}
+
+$p1 = Future\resolve(3);
+
+Future\run('add', 2, $p1)->then('var_dump');
+```
+
+输出结果为：
+
+>
+```
+int(5)
+```
 >
