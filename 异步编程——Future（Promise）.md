@@ -920,9 +920,6 @@ mixed wrap(mixed $handler);
 例如：
 
 ```php
-<?php
-require_once "../vendor/autoload.php";
-
 use Hprose\Future;
 
 class Test {
