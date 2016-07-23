@@ -280,6 +280,12 @@ bool(true)
 
 因此，如果您不是在写单元测试，最好不要使用 `done` 方法。
 
+## fail 方法
+
+该方法是 `done(null, $onreject)` 的简化方法。
+
+如果您不是在写单元测试，最好不要使用 `fail` 方法。
+
 ## catchError 方法
 
 ```php
@@ -313,3 +319,38 @@ $p->catchError(function($reason) { return 'this is a OverflowException'; },
 string(29) "this is a OutOfRangeException"
 ```
 >
+
+## resolve 方法
+
+该方法可以将状态为待定（pending）的 `promise` 对象变为成功（fulfilled）状态。
+
+该方法的参数值可以为任意类型。
+
+## reject 方法
+
+该方法可以将状态为待定（pending）的 `promise` 对象变为失败（rejected）状态。
+
+该方法的参数值可以为任意类型，但通常只使用异常类型。
+
+## inspect 方法
+
+该方法返回当前 `promise` 对象的状态。
+
+如果当前状态为待定（pending），返回值为：
+
+```php
+array('state' => 'pending')
+```
+
+如果当前状态为成功（fulfilled），返回值为：
+
+```php
+array('state' => 'fulfilled', 'value' => $promise->value)
+```
+
+如果当前状态为失败（rejected），返回值为：
+
+```php
+array('state' => 'rejected', 'reason' => $promise->reason);
+```
+
