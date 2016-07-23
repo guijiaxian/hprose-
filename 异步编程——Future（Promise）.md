@@ -413,3 +413,38 @@ string(15) "reject protobuf"
 ## fill 方法
 
 将当前 `promise` 对象的值充填到参数所表示的 `promise` 对象中。
+
+## tap 方法
+
+```php
+$promise->tap($onfulfilledSideEffect);
+```
+
+以下两种写法是等价的：
+
+```php
+$promise->then(function($result) use ($onfulfilledSideEffect) {
+    call_user_func($onfulfilledSideEffect, $result);
+    return result;
+});
+
+$promise->tap($onfulfilledSideEffect);
+```
+
+显然使用 `tap` 方法写起来更简单。
+
+## spread 方法
+
+```php
+$promise->spread($onfulfilledArray);
+```
+
+以下两种写法是等价的：
+
+```php
+$promise->then(function($array) use ($onfulfilledArray) {
+    return call_user_func_array($onfulfilledArray, $array);
+});
+
+$promise->spread($onfulfilledArray);
+```
