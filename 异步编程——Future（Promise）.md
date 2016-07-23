@@ -871,7 +871,7 @@ Array
 注：上面输出中 `...` 表示省略掉的内容。
 >
 
-## run 方法
+## run 函数
 
 ```php
 Future run(callable $handler[, mixed $arg1[, mixed $arg2[, ...]]]);
@@ -900,3 +900,25 @@ Future\run('add', 2, $p1)->then('var_dump');
 int(5)
 ```
 >
+
+## wrap 函数
+
+```php
+mixed wrap(mixed $handler);
+```
+
+`run` 函数虽然可以将 `promise` 参数带入普通函数执行并得到结果，但是不方便复用。`wrap` 函数可以很好的解决这个问题。
+
+`wrap` 函数的参数可以是一个 `callable` 对象，也可以是一个普通对象。
+
+如果参数是一个 `callable` 数据（比如函数，方法），则返回值是一个闭包对象，它是一个包装好的函数，该函数的执行方式跟使用 `Future\run` 的效果一样。
+
+如果参数是一个普通对象，则返回值是一个 `\Hprose\Future\Wrapper` 对象。你可以像存取源对象一样存取它，但是它上面的方法的执行方式跟使用 `Future\run` 的效果一样。
+
+如果参数是一个 `callable` 对象，则返回值是一个 `\Hprose\Future\CallableWrapper` 对象。它跟 `\Hprose\Future\Wrapper` 对象类似，只是该对象本身也可以被直接作为函数调用，而且执行方式跟使用 `Future\run` 的效果一样。
+
+例如：
+
+```php
+
+```
