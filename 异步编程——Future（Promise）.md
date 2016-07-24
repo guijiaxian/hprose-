@@ -1358,3 +1358,47 @@ array(3) {
 }
 ```
 >
+
+## reduce 方法
+
+```php
+mixed reduce(mixed $array, callable $callback, $initial = NULL);
+```
+
+参数 `$array` 可以是一个包含数组的 `promise` 对象，也可以是一个包含有 `promise` 对象的数组。
+
+该函数可以遍历数组中的每一个元素并执行回调 `$callback`，`$callback` 的第一个参数为 $initial 的值或者上一次调用的返回值。最后一次 $callback 的返回结果作为 `promise` 对象所包含的值。该函数返回值是一个 promise 对象。如果参数数组中的 promise 对象为失败（rejected）状态，则该方法返回的 promise 对象被设置为失败（rejected）状态，且设为相同失败原因。如果在 callback 回调中抛出了异常，则该方法返回的 promise 对象也被设置为失败（rejected）状态，失败原因被设置为抛出的异常值。
+
+`$callback` 回调方法的格式如下：
+
+```php
+mixed callback(mixed $carry, mixed $item);
+```
+
+关于该方法的更多描述可以参见 PHP 手册中的 `array_reduce` 方法。
+
+```php
+use Hprose\Future;
+
+$dump = Future\wrap('var_dump');
+
+$numbers = array(Future\value(0), 1, Future\value(2), 3, Future\value(4));
+
+function add($a, $b) {
+  return $a + $b;
+}
+
+$dump(Future\reduce($numbers, 'add'));
+$dump(Future\reduce($numbers, 'add', 10));
+$dump(Future\reduce($numbers, 'add', Future\value(20)));
+```
+
+运行结果如下：
+
+>
+```
+int(10)
+int(20)
+int(30)
+```
+>
