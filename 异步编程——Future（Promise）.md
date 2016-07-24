@@ -540,6 +540,30 @@ bool callback(mixed $value[, mixed $key[, array $array]]);
 
 后两个参数是可选的。
 
+```php
+use Hprose\Future;
+
+$dump = Future\wrap('var_dump');
+
+function isBigEnough($value) {
+  return $value >= 10;
+}
+
+$a1 = Future\value(array(12, Future\value(5), 8, Future\value(130), 44));
+$a2 = Future\value(array(1, Future\value(5), 8, Future\value(1), 4));
+$dump($a1->some('isBigEnough'));   // true
+$dump($a2->some('isBigEnough'));   // false
+```
+
+运行结果如下：
+
+>
+```
+bool(true)
+bool(false)
+```
+>
+
 ## filter 方法
 
 ```php
@@ -1095,5 +1119,53 @@ bool(false)
 bool(true)
 bool(false)
 bool(true)
+```
+>
+
+## some 方法
+
+```php
+bool some(mixed $array, callable $callback);
+```
+
+参数 `$array` 可以是一个包含数组的 `promise` 对象，也可以是一个包含有 `promise` 对象的数组。
+
+该函数可以遍历数组中的每一个元素并执行回调 `$callback`，当任意一个 `$callback` 的返回值为 `true` 时，结果为 `true`，否则为 `false`。如果参数数组中的 promise 对象为失败（rejected）状态，则该方法返回的 promise 对象被设置为失败（rejected）状态，且设为相同失败原因。如果在 callback 回调中抛出了异常，则该方法返回的 promise 对象也被设置为失败（rejected）状态，失败原因被设置为抛出的异常值。
+
+`$callback` 回调方法的格式如下：
+
+```php
+bool callback(mixed $value[, mixed $key[, array $array]]);
+```
+
+后两个参数是可选的。
+
+```php
+use Hprose\Future;
+
+$dump = Future\wrap('var_dump');
+
+function isBigEnough($value) {
+  return $value >= 10;
+}
+
+$a1 = array(12, Future\value(5), 8, Future\value(130), 44);
+$a2 = array(1, Future\value(5), 8, Future\value(1), 4);
+$a3 = Future\value($a1);
+$a4 = Future\value($a2);
+$dump(Future\some($a1, 'isBigEnough'));   // true
+$dump(Future\some($a2, 'isBigEnough'));   // false
+$dump(Future\some($a3, 'isBigEnough'));   // true
+$dump(Future\some($a4, 'isBigEnough'));   // false
+```
+
+运行结果如下：
+
+>
+```
+bool(true)
+bool(false)
+bool(true)
+bool(false)
 ```
 >
