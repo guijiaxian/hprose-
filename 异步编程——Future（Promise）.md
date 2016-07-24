@@ -463,6 +463,31 @@ function callback(mixed $value[, mixed $key[, array $array]]);
 
 后两个参数是可选的。
 
+```php
+use Hprose\Future;
+
+function dumpArray($value, $key) {
+  var_dump("a[$key] = $value");
+}
+
+$a1 = Future\value(array(2, Future\value(5), 9));
+$a2 = Future\value(array('name' => Future\value('Tom'), 'age' => Future\value(18)));
+$a1->each('dumpArray');
+$a2->each('dumpArray');
+```
+
+输出结果为：
+
+>
+```
+string(8) "a[0] = 2"
+string(8) "a[1] = 5"
+string(8) "a[2] = 9"
+string(13) "a[name] = Tom"
+string(11) "a[age] = 18"
+```
+>
+
 ## every 方法
 
 ```php
@@ -985,8 +1010,8 @@ function dumpArray($value, $key) {
 
 $a1 = array(2, Future\value(5), 9);
 $a2 = array('name' => Future\value('Tom'), 'age' => Future\value(18));
-Future\each($a1, "dumpArray");
-Future\each($a2, "dumpArray");
+Future\each($a1, 'dumpArray');
+Future\each($a2, 'dumpArray');
 ```
 
 输出结果为：
