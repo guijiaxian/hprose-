@@ -502,6 +502,30 @@ bool callback(mixed $value[, mixed $key[, array $array]]);
 
 后两个参数是可选的。
 
+```php
+use Hprose\Future;
+
+$dump = Future\wrap('var_dump');
+
+function isBigEnough($value) {
+  return $value >= 10;
+}
+
+$a1 = Future\value(array(12, Future\value(5), 8, Future\value(130), 44));
+$a2 = Future\value(array(12, Future\value(54), 18, Future\value(130), 44));
+$dump($a1->every('isBigEnough'));   // false
+$dump($a2->every('isBigEnough'));   // true
+```
+
+运行结果如下：
+
+>
+```
+bool(false)
+bool(true)
+```
+>
+
 ## some 方法
 
 ```php
