@@ -578,6 +578,45 @@ bool callback(mixed $value[, mixed $key[, array $array]]);
 
 后两个参数是可选的。
 
+```php
+use Hprose\Future;
+
+$dump = Future\wrap('var_dump');
+
+function isBigEnough($value) {
+  return $value >= 8;
+}
+
+$a = Future\value(array(
+    'Tom' => 8,
+    'Jerry' => Future\value(5),
+    'Spike' => 10,
+    'Tyke' => 3
+));
+
+$dump($a->filter('isBigEnough'));
+$dump($a->filter('isBigEnough', true));
+```
+
+运行结果为：
+
+>
+```
+array(2) {
+  [0]=>
+  int(8)
+  [1]=>
+  int(10)
+}
+array(2) {
+  ["Tom"]=>
+  int(8)
+  ["Spike"]=>
+  int(10)
+}
+```
+>
+
 ## map 方法
 
 ```php
