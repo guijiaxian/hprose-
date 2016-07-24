@@ -458,10 +458,10 @@ $promise->each($callback);
 如果 `promise` 对象中包含的是一个数组，那么使用该方法可以对该数组进行遍历。`$callback` 回调方法的格式如下：
 
 ```php
-function callback([mixed $value[, mixed $key[, array $array]]]);
+function callback(mixed $value[, mixed $key[, array $array]]);
 ```
 
-三个参数都是可选的，但通常至少会有一个参数。
+后两个参数是可选的。
 
 ## every 方法
 
@@ -472,10 +472,10 @@ $promise->every($callback);
 如果 `promise` 对象中包含的是一个数组，那么使用该方法可以遍历数组中的每一个元素并执行回调 `$callback`，当所有 `$callback` 的返回值都为 `true` 时，结果为 `true`，否则为 `false`。$callback 回调方法的格式如下：
 
 ```php
-bool callback([mixed $value[, mixed $key[, array $array]]]);
+bool callback(mixed $value[, mixed $key[, array $array]]);
 ```
 
-三个参数都是可选的，但通常至少会有一个参数。
+后两个参数是可选的。
 
 ## some 方法
 
@@ -486,10 +486,10 @@ $promise-> some($callback);
 如果 `promise` 对象中包含的是一个数组，那么使用该方法可以遍历数组中的每一个元素并执行回调 `$callback`，当任意一个 `$callback` 的返回值为 `true` 时，结果为 `true`，否则为 `false`。`$callback` 回调方法的格式如下：
 
 ```php
-bool callback([mixed $value[, mixed $key[, array $array]]]);
+bool callback(mixed $value[, mixed $key[, array $array]]);
 ```
 
-三个参数都是可选的，但通常至少会有一个参数。
+后两个参数是可选的。
 
 ## filter 方法
 
@@ -500,10 +500,10 @@ $promise->filter($callback, $preserveKeys = false);
 如果 `promise` 对象中包含的是一个数组，那么使用该方法可以遍历数组中的每一个元素并执行回调 `$callback`，`$callback` 的返回值为 `true` 的元素所组成的数组将作为 `filter` 返回结果的 `promise` 对象所包含的值。当参数 `$preserveKeys` 为 `true` 时，结果数组中的 元素所对应的 `key` 保持原来的 `key`，否则将返回以 0 为起始下标的连续数字下标的数组。`$callback` 回调方法的格式如下：
 
 ```php
-bool callback([mixed $value[, mixed $key[, array $array]]]);
+bool callback(mixed $value[, mixed $key[, array $array]]);
 ```
 
-三个参数都是可选的，但通常至少会有一个参数。
+后两个参数是可选的。
 
 ## map 方法
 
@@ -514,10 +514,10 @@ $promise->map($callback);
 如果 `promise` 对象中包含的是一个数组，那么使用该方法可以遍历数组中的每一个元素并执行回调 `$callback`，`$callback` 的返回值所组成的数组将作为 `map` 返回结果的 `promise` 对象所包含的值。`$callback` 回调方法的格式如下：
 
 ```php
-mixed callback([mixed $value[, mixed $key[, array $array]]]);
+mixed callback(mixed $value[, mixed $key[, array $array]]);
 ```
 
-三个参数都是可选的，但通常至少会有一个参数。
+后两个参数是可选的。
 
 ## reduce 方法
 
