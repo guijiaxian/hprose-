@@ -1496,7 +1496,7 @@ Future<bool> includes(mixed $array, mixed $searchElement[, bool $strict = false]
 
 # Hprose\Promise 类和名空间
 
-`Hprose\Promise` 类是 `Hprose\Future` 的子类，除了构造方法跟 `Hprose\FUture` 有所不同之外，其它方法都完全一致。
+`Hprose\Promise` 类是 `Hprose\Future` 的子类，除了构造方法跟 `Hprose\Future` 有所不同之外，其它方法都完全一致。
 
 `Hprose\Promise` 名空间下的方法也都跟 `Hprose\Future` 名空间下的方法相同。只是有一个函数名不同，即 `Hprose\Promise\isPromise`，但它的功能跟 `Hprose\Future\isFuture` 是完全一样的。
 
