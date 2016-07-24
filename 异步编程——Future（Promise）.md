@@ -669,6 +669,31 @@ mixed callback(mixed $carry, mixed $item);
 
 关于该方法的更多描述可以参见 PHP 手册中的 `array_reduce` 方法。
 
+```php
+use Hprose\Future;
+
+$dump = Future\wrap('var_dump');
+
+$numbers = Future\value(array(Future\value(0), 1, Future\value(2), 3, Future\value(4)));
+
+function add($a, $b) {
+  return $a + $b;
+}
+
+$dump($numbers->reduce('add'));
+$dump($numbers->reduce('add', 10));
+$dump($numbers->reduce('add', Future\value(20)));
+```
+
+运行结果如下：
+>
+```
+int(10)
+int(20)
+int(30)
+```
+>
+
 ## search 方法
 
 ```php
