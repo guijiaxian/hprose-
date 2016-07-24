@@ -1411,7 +1411,7 @@ array(3) {
 ## reduce 函数
 
 ```php
-mixed reduce(mixed $array, callable $callback, $initial = NULL);
+mixed reduce(mixed $array, callable $callback[, $initial = NULL]);
 ```
 
 参数 `$array` 可以是一个包含数组的 `promise` 对象，也可以是一个包含有 `promise` 对象的数组。
