@@ -480,7 +480,7 @@ bool callback(mixed $value[, mixed $key[, array $array]]);
 ## some 方法
 
 ```php
-$promise-> some($callback);
+$promise->some($callback);
 ```
 
 如果 `promise` 对象中包含的是一个数组，那么使用该方法可以遍历数组中的每一个元素并执行回调 `$callback`，当任意一个 `$callback` 的返回值为 `true` 时，结果为 `true`，否则为 `false`。`$callback` 回调方法的格式如下：
@@ -955,5 +955,48 @@ int(3)
 int(-1)
 int(2)
 float(0.5)
+```
+>
+
+## each 函数
+
+```php
+void each(mixed $array, callable $callback);
+```
+
+参数 `$array` 可以是一个包含数组的 `promise` 对象，也可以是一个包含有 `promise` 对象的数组。
+
+该函数对该数组中的每个元素的展开值进行遍历。返回值是一个 `promise` 对象。如果参数数组中的 `promise` 对象为失败（rejected）状态，则该方法返回的 `promise` 对象被设置为失败（rejected）状态，且设为相同失败原因。如果在 `$callback` 回调中抛出了异常，则该方法返回的 `promise` 对象也被设置为失败（rejected）状态，失败原因被设置为抛出的异常值。
+
+`$callback` 回调方法的格式如下：
+
+```php
+function callback(mixed $value[, mixed $key[, array $array]]);
+```
+
+后两个参数是可选的。
+
+```php
+use Hprose\Future;
+
+function dumpArray($value, $key) {
+  var_dump("a[$key] = $value");
+}
+
+$a1 = array(2, Future\value(5), 9);
+$a2 = array('name' => Future\value('Tom'), 'age' => Future\value(18));
+Future\each($a1, "dumpArray");
+Future\each($a2, "dumpArray");
+```
+
+输出结果为：
+
+>
+```
+string(8) "a[0] = 2"
+string(8) "a[1] = 5"
+string(8) "a[2] = 9"
+string(13) "a[name] = Tom"
+string(11) "a[age] = 18"
 ```
 >
