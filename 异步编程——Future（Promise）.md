@@ -631,6 +631,30 @@ mixed callback(mixed $value[, mixed $key[, array $array]]);
 
 后两个参数是可选的。
 
+```php
+use Hprose\Future;
+
+$dump = Future\wrap('var_dump');
+
+$a = Future\value(array(1, Future\value(4), 9));
+$dump($a->map('sqrt'));
+```
+
+运行结果为：
+
+>
+```
+array(3) {
+  [0]=>
+  float(1)
+  [1]=>
+  float(2)
+  [2]=>
+  float(3)
+}
+```
+>
+
 ## reduce 方法
 
 ```php
@@ -1116,7 +1140,7 @@ string(11) "a[age] = 18"
 ## every 函数
 
 ```php
-bool every(mixed $array, callable $callback);
+Future<bool> every(mixed $array, callable $callback);
 ```
 
 参数 `$array` 可以是一个包含数组的 `promise` 对象，也可以是一个包含有 `promise` 对象的数组。
@@ -1164,7 +1188,7 @@ bool(true)
 ## some 方法
 
 ```php
-bool some(mixed $array, callable $callback);
+Future<bool> some(mixed $array, callable $callback);
 ```
 
 参数 `$array` 可以是一个包含数组的 `promise` 对象，也可以是一个包含有 `promise` 对象的数组。
@@ -1212,7 +1236,7 @@ bool(false)
 ## filter 方法
 
 ```php
-bool filter(mixed $array, callable $callback);
+Future<array> filter(mixed $array, callable $callback);
 ```
 
 参数 `$array` 可以是一个包含数组的 `promise` 对象，也可以是一个包含有 `promise` 对象的数组。
@@ -1289,6 +1313,48 @@ array(2) {
   int(8)
   ["Spike"]=>
   int(10)
+}
+```
+>
+
+## map 方法
+
+```php
+Future<array> map(mixed $array, callable $callback);
+```
+
+参数 `$array` 可以是一个包含数组的 `promise` 对象，也可以是一个包含有 `promise` 对象的数组。
+
+该函数可以遍历数组中的每一个元素并执行回调 `$callback`，`$callback` 的返回值所组成的数组将作为 `map` 返回结果的 `promise` 对象所包含的值。该函数返回值是一个 promise 对象。如果参数数组中的 promise 对象为失败（rejected）状态，则该方法返回的 promise 对象被设置为失败（rejected）状态，且设为相同失败原因。如果在 callback 回调中抛出了异常，则该方法返回的 promise 对象也被设置为失败（rejected）状态，失败原因被设置为抛出的异常值。
+
+`$callback` 回调方法的格式如下：
+
+```php
+mixed callback(mixed $value[, mixed $key[, array $array]]);
+```
+
+后两个参数是可选的。
+
+```php
+use Hprose\Future;
+
+$dump = Future\wrap('var_dump');
+
+$a = array(1, Future\value(4), 9);
+$dump(Future\map($a, 'sqrt'));
+```
+
+运行结果为：
+
+>
+```
+array(3) {
+  [0]=>
+  float(1)
+  [1]=>
+  float(2)
+  [2]=>
+  float(3)
 }
 ```
 >
