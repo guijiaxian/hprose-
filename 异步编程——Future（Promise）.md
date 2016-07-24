@@ -1411,7 +1411,7 @@ array(3) {
 ## reduce 函数
 
 ```php
-mixed reduce(mixed $array, callable $callback[, $initial = NULL]);
+Future<mixed> reduce(mixed $array, callable $callback[, $initial = NULL]);
 ```
 
 参数 `$array` 可以是一个包含数组的 `promise` 对象，也可以是一个包含有 `promise` 对象的数组。
@@ -1455,7 +1455,7 @@ int(30)
 ## search 方法
 
 ```php
-mixed search(mixed $array, mixed $searchElement[, bool $strict = false]);
+Future<mixed> search(mixed $array, mixed $searchElement[, bool $strict = false]);
 ```
 
 参数 `$array` 可以是一个包含数组的 `promise` 对象，也可以是一个包含有 `promise` 对象的数组。
@@ -1485,3 +1485,11 @@ int(1)
 bool(false)
 ```
 >
+
+## includes 函数
+
+```php
+Future<bool> includes(mixed $array, mixed $searchElement[, bool $strict = false]);
+```
+
+该方法同 `search` 方法类似，只是在找到的情况下，仅仅返回包含 `true` 的 `promise` 对象。
