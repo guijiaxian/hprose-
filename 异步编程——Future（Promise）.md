@@ -1169,3 +1169,87 @@ bool(true)
 bool(false)
 ```
 >
+
+## filter 方法
+
+```php
+bool filter(mixed $array, callable $callback);
+```
+
+参数 `$array` 可以是一个包含数组的 `promise` 对象，也可以是一个包含有 `promise` 对象的数组。
+
+该函数可以遍历数组中的每一个元素并执行回调 `$callback`，`$callback` 的返回值为 `true` 的元素所组成的数组将作为 `filter` 返回结果的 `promise` 对象所包含的值。当参数 `$preserveKeys` 为 `true` 时，结果数组中的 元素所对应的 `key` 保持原来的 `key`，否则将返回以 0 为起始下标的连续数字下标的数组。如果参数数组中的 promise 对象为失败（rejected）状态，则该方法返回的 promise 对象被设置为失败（rejected）状态，且设为相同失败原因。如果在 callback 回调中抛出了异常，则该方法返回的 promise 对象也被设置为失败（rejected）状态，失败原因被设置为抛出的异常值。
+
+`$callback` 回调方法的格式如下：
+
+```php
+bool callback(mixed $value[, mixed $key[, array $array]]);
+```
+
+后两个参数是可选的。
+
+```php
+use Hprose\Future;
+
+$dump = Future\wrap('var_dump');
+
+function isBigEnough($value) {
+  return $value >= 8;
+}
+
+$a1 = array(12, Future\value(5), 8, Future\value(130), 44);
+$a2 = Future\value($a1);
+$dump(Future\filter($a1, 'isBigEnough'));
+$dump(Future\filter($a2, 'isBigEnough'));
+
+$a3 = array('Tom' => 8, 'Jerry' => Future\value(5), 'Spike' => 10, 'Tyke' => 3);
+$a4 = Future\value($a3);
+$dump(Future\filter($a3, 'isBigEnough'));
+$dump(Future\filter($a3, 'isBigEnough', true));
+$dump(Future\filter($a4, 'isBigEnough', true));
+```
+
+运行结果为：
+
+>
+```
+array(4) {
+  [0]=>
+  int(12)
+  [1]=>
+  int(8)
+  [2]=>
+  int(130)
+  [3]=>
+  int(44)
+}
+array(4) {
+  [0]=>
+  int(12)
+  [1]=>
+  int(8)
+  [2]=>
+  int(130)
+  [3]=>
+  int(44)
+}
+array(2) {
+  [0]=>
+  int(8)
+  [1]=>
+  int(10)
+}
+array(2) {
+  ["Tom"]=>
+  int(8)
+  ["Spike"]=>
+  int(10)
+}
+array(2) {
+  ["Tom"]=>
+  int(8)
+  ["Spike"]=>
+  int(10)
+}
+```
+>
