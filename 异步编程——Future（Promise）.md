@@ -702,6 +702,30 @@ $promise->search($searchElement, $strict = false);
 
 如果 `promise` 对象中包含的是一个数组，那么使用该方法可以在 `promise` 对象所包含的数组中查找 `$searchElement` 元素，返回值以 `promise` 对象形式返回，如果找到，返回的 `promise` 对象中将包含该元素对应的 `key`，否则为 `false`。当 `$strict` 为 `true` 时，使用 `===` 运算符进行相等测试。
 
+```php
+use Hprose\Future;
+
+$dump = Future\wrap('var_dump');
+
+$numbers = Future\value(array(Future\value(0), 1, Future\value(2), 3, Future\value(4)));
+
+$dump($numbers->search(2));
+$dump($numbers->search(Future\value(3)));
+$dump($numbers->search(true));
+$dump($numbers->search(true, true));
+```
+
+运行结果如下：
+
+>
+```
+int(2)
+int(3)
+int(1)
+bool(false)
+```
+>
+
 ## includes 方法
 
 ```php
@@ -1210,7 +1234,7 @@ bool(true)
 ```
 >
 
-## some 方法
+## some 函数
 
 ```php
 Future<bool> some(mixed $array, callable $callback);
@@ -1258,7 +1282,7 @@ bool(false)
 ```
 >
 
-## filter 方法
+## filter 函数
 
 ```php
 Future<array> filter(mixed $array, callable $callback);
@@ -1342,7 +1366,7 @@ array(2) {
 ```
 >
 
-## map 方法
+## map 函数
 
 ```php
 Future<array> map(mixed $array, callable $callback);
@@ -1384,7 +1408,7 @@ array(3) {
 ```
 >
 
-## reduce 方法
+## reduce 函数
 
 ```php
 mixed reduce(mixed $array, callable $callback, $initial = NULL);
@@ -1425,5 +1449,39 @@ $dump(Future\reduce($numbers, 'add', Future\value(20)));
 int(10)
 int(20)
 int(30)
+```
+>
+
+## search 方法
+
+```php
+mixed search(mixed $array, mixed $searchElement[, bool $strict = false]);
+```
+
+参数 `$array` 可以是一个包含数组的 `promise` 对象，也可以是一个包含有 `promise` 对象的数组。
+
+该函数可以在 `promise` 对象所包含的数组中查找 `$searchElement` 元素，返回值以 `promise` 对象形式返回，如果找到，返回的 `promise` 对象中将包含该元素对应的 `key`，否则为 `false`。当 `$strict` 为 `true` 时，使用 `===` 运算符进行相等测试。该函数返回值是一个 promise 对象。如果参数数组中的 promise 对象为失败（rejected）状态，则该方法返回的 promise 对象被设置为失败（rejected）状态，且设为相同失败原因。
+
+```php
+use Hprose\Future;
+
+$dump = Future\wrap('var_dump');
+
+$numbers = array(Future\value(0), 1, Future\value(2), 3, Future\value(4));
+
+$dump(Future\search($numbers, 2));
+$dump(Future\search($numbers, Future\value(3)));
+$dump(Future\search($numbers, true));
+$dump(Future\search($numbers, true, true));
+```
+
+运行结果如下：
+
+>
+```
+int(2)
+int(3)
+int(1)
+bool(false)
 ```
 >
