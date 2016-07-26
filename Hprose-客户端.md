@@ -171,10 +171,10 @@ HTTP 服务地址与普通的 URL 地址没有区别，支持 `http` 和 `https`
 ### Unix Socket 服务地址格式
 
 ```
-unix:path
+unix:<path>
 ```
 
-其中 path 是绝对路径（以 `/` 开头）。例如：
+其中 `<path>` 是绝对路径（以 `/` 开头）。例如：
 
 ```
 unix:/tmp/my.sock
