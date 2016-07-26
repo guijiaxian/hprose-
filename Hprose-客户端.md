@@ -235,3 +235,73 @@ $name 是字符串类型，$e 在 PHP 5 中 为 Exception 类型或它的子类�
 简单的讲，用 `JSON` 可以表示的数据都是简单数据。但是对于比较复杂的 `JSON` 数据，设置 `simple` 为 `true` 可能不会加快速度，反而会减慢，比如对象数组。因为默认情况下，hprose 会对对象数组中的重复字符串的键值进行引用处理，这种引用处理可以对序列化起到优化作用。而关闭引用处理，也就关闭了这种优化。
 
 因为不同调用的数据可能差别很大，因此，建议不要修改默认设置，而是针对某个调用进行单独设置。
+
+# 方法
+
+## close 方法
+
+关闭客户端。它会在析构方法中被自动调用，因此，你通常不需要手动调用它。
+
+## getTimeout 方法
+
+获取 timeout 属性值。
+
+## setTimeout 方法
+
+设置 timeout 属性值。
+
+## getRetry 方法
+
+获取 retry 属性值。
+
+## setRetry 方法
+
+设置 retry 属性值。
+
+## isIdempontent 方法
+
+获取 idempontent 属性值。
+
+## setIdempontent 方法
+
+设置 idempontent 属性值。
+
+## isFailswitch 方法
+
+获取 failswitch 属性值。
+
+## setFailswitch 方法
+
+设置 failswitch 属性值。
+
+## isByref 方法
+
+获取 byref 属性值。
+
+## setByref 方法
+
+设置 byref 属性值。
+
+## isSimple 方法
+
+获取 simple 属性值。
+
+## setSimple 方法
+
+设置 simple 属性值。
+
+## getFilter 方法
+
+获取添加的第一个过滤器对象。
+
+## setFilter 方法
+
+设置一个过滤器对象，如果原来已经设置或添加了过滤器，该方法会先清除掉之前的设置，然后在设置参数所指定的过滤器。
+
+## addFilter 方法
+
+添加一个过滤器。跟 `setFilter` 只能设置一个过滤器不同，通过 `addFilter` 方法，可以添加多个过滤器。
+
+## removeFilter 方法
+
+删除指定的过滤器。如果没有找到返回 false，删除成功返回 true。
