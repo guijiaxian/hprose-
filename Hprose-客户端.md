@@ -89,8 +89,12 @@ $client = new \Hprose\Swoole\Client('ws://127.0.0.1:8080/');
 ## 通过工厂方法 `create` 创建客户端
 
 ```php
-$client = \Hprose\Client->create([$uris = null[, $async = true]]);
+$client = \Hprose\Client->create($uris = null[, $async = true]);
 ```
+
+`create` 方法与构造器函数的参数一样，返回结果也一样。但是第一个参数 `$uris` 不能被省略。
+
+使用 `create` 方法更加方便，因此，除非在创建客户端的时候，不想指定服务地址，否则，应该优先考虑使用 `create` 方法来创建客户端。
 
 `\Hprose\Client->create` 支持创建 Hprose 核心库上的客户端，`Hprose\Swoole\Client->create` 支持创建 swoole 的客户端。例如：
 
@@ -131,3 +135,48 @@ Client::tryRegisterClientFactory($scheme, $clientFactory);
 注册之后，你就可以使用 `create` 方法来创建你的客户端对象了。
 
 `registerClientFactory` 方法会覆盖原来已注册的相同 `$scheme` 的客户端类，`tryRegisterClientFactory` 方法不会覆盖。
+
+## uri 地址格式
+
+### HTTP 服务地址格式
+
+HTTP 服务地址与普通的 URL 地址没有区别，支持 `http` 和 `https` 两种协议，这里不做介绍。
+
+### WebSocket 服务地址格式
+
+除了协议从 `http` 改为 `ws`（或 `wss`） 以外，其它部分与 `http` 地址表示方式完全相同，这里不再详述。
+
+### TCP 服务地址格式
+
+```
+<scheme>://<ip>:<port>
+```
+
+`<ip>` 是服务器的 IP 地址，也可以是域名。
+
+`<port>` 是服务器的端口号，hprose 的 TCP 服务没有默认端口号，因此不可省略。
+
+`<scheme>` 表示协议，它可以为以下取值：
+
+* `tcp`
+* `ssl`
+* `sslv2`
+* `sslv3`
+* `tls`
+
+`tcp` 表示 tcp 协议，地址可以是 ipv6 地址，也可以是 ipv4 地址。
+
+`ssl`, `sslv2`, `sslv3` 和 `tls` 表示安全的 tcp 协议。如有必要，可设置客户端安全证书。
+
+### Unix Socket 服务地址格式
+
+```
+unix:path
+```
+
+其中 path 是绝对路径（以 `/` 开头）。例如：
+
+```
+unix:/tmp/my.sock
+```
+
