@@ -337,7 +337,7 @@ $userService->remove($userId);
 ## invoke 方法
 
 ```php
-function invoke($name[, array $args = array()[, $callback = null, [InvokeSettings $settings = null]]])
+function invoke($name[, array $args = array()[, $callback = null[, InvokeSettings $settings = null]]])
 ```
 
 该方法是客户端最核心的方法，但是你可能永远也不会直接使用它，虽然你可能不用，但我还是要对它做一下介绍。
