@@ -89,33 +89,33 @@ $client = new \Hprose\Swoole\Client('ws://127.0.0.1:8080/');
 ## 通过工厂方法 `create` 创建客户端
 
 ```php
-$client = \Hprose\Client->create($uris = null[, $async = true]);
+$client = \Hprose\Client::create($uris = null[, $async = true]);
 ```
 
 `create` 方法与构造器函数的参数一样，返回结果也一样。但是第一个参数 `$uris` 不能被省略。
 
 使用 `create` 方法更加方便，因此，除非在创建客户端的时候，不想指定服务地址，否则，应该优先考虑使用 `create` 方法来创建客户端。
 
-`\Hprose\Client->create` 支持创建 Hprose 核心库上的客户端，`Hprose\Swoole\Client->create` 支持创建 swoole 的客户端。例如：
+`\Hprose\Client::create` 支持创建 Hprose 核心库上的客户端，`Hprose\Swoole\Client::create` 支持创建 swoole 的客户端。例如：
 
 **创建一个同步的 HTTP 客户端**
 ```php
-$client = \Hprose\Client->create('http://hprose.com/example/', false);
+$client = \Hprose\Client::create('http://hprose.com/example/', false);
 ```
 
 **创建一个同步的 TCP 客户端**
 ```php
-$client = \Hprose\Client->create('tcp://127.0.0.1:1314', false);
+$client = \Hprose\Client::create('tcp://127.0.0.1:1314', false);
 ```
 
 **创建一个异步的 Unix Socket 客户端**
 ```php
-$client = \Hprose\Client->create('unix:/tmp/my.sock');
+$client = \Hprose\Client::create('unix:/tmp/my.sock');
 ```
 
 **创建一个异步的 WebSocket 客户端**
 ```php
-$client = new \Hprose\Swoole\Client-create('ws://127.0.0.1:8080/');
+$client = \Hprose\Swoole\Client::create('ws://127.0.0.1:8080/');
 ```
 
 ## 注册自己的客户端实现类
@@ -367,4 +367,63 @@ function callback($result, $args, $error);
 
 最后一个参数 `$settings` 是 Hprose 2.0 新加的。1.x 版本中在 `$callback` 后面还有一堆几个参数用户设置调用的特殊属性，但是 Hprose 2.0 为每个调用增加了许多特殊属性设置，所以再用位置参数的方式，用户恐怕就要晕了。所以，这里牺牲了兼容性，改成了使用一个 `$settings` 参数来存储所有的特殊属性设置。
 
-`$settings` 参数是一个 `\Hprose\InvokeSettings` 类型的对象。
+`$settings` 参数是一个 `\Hprose\InvokeSettings` 类型的对象。`\Hprose\InvokeSettings` 是个什么东？让我们来看一下：
+
+## InvokeSettings 类
+
+该类的构造参数是一个数组。你可以通过这个数组来设置调用的特殊属性，下面来看一下支持哪些设置：
+
+* `mode`
+* `byref`
+* `simple`
+* `failswitch`
+* `timeout`
+* `idempotent`
+* `retry`
+* `oneway`
+* `userdata`
+
+下面来分别介绍一下这些设置的意义：
+
+### mode
+
+该设置表示结果返回的类型，它有4个取值，分别是：
+
+* `Hprose\ResultMode::Normal`
+* `Hprose\ResultMode::Serialized`
+* `Hprose\ResultMode::Raw`
+* `Hprose\ResultMode::RawWithEndTag`
+
+`Hprose\ResultMode::Normal` 是默认值，表示返回正常的已被反序列化的结果。
+
+`Hprose\ResultMode::Serialized` 表示返回的结果保持序列化的格式。
+
+`Hprose\ResultMode::Raw` 表示返回原始数据。
+
+`Hprose\ResultMode::RawWithEndTag` 表示返回带有结束标记的原始数据。
+
+这样说明也许有些晦涩，让我们来看一个例子就清楚了：
+
+```php
+use Hprose\Client;
+use Hprose\InvokeSettings;
+use Hprose\ResultMode;
+
+$client = Client::create('http://hprose.com/example/', false);
+
+var_dump($client->hello("World", new InvokeSettings(array('mode' => ResultMode::Normal))));
+var_dump($client->hello("World", new InvokeSettings(array('mode' => ResultMode::Serialized))));
+var_dump($client->hello("World", new InvokeSettings(array('mode' => ResultMode::Raw))));
+var_dump($client->hello("World", new InvokeSettings(array('mode' => ResultMode::RawWithEndTag))));
+```
+
+该程序执行结果如下：
+
+>
+```
+string(11) "Hello World"
+string(16) "s11"Hello World""
+string(17) "Rs11"Hello World""
+string(18) "Rs11"Hello World"z"
+```
+>
