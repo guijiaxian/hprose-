@@ -26,3 +26,62 @@ WebSocket 客户端  |        :x:         | :white_check_mark:
 
 尽管支持这么多不同的底层网络协议，但除了在对涉及到底层网络协议的参数设置上有所不同以外，其它的用法都完全相同。因此，我们在下面介绍 Hprose 客户端的功能时，若未涉及到底层网络协议的区别，就以 HTTP 客户端为例来进行说明。
 
+# 创建客户端
+
+创建客户端有两种方式，一种是直接使用构造器，另一种是使用工厂方法 create。
+
+## 使用构造器创建客户端
+
+`Hprose\Client` 是一个抽象类，因此它不能作为构造器直接使用。如果你想创建一个具体的底层网络协议绑定的客户端，你可以将它作为父类，至于如何实现一个具体的底层网络协议绑定的客户端，这已经超出了本手册的内容范围，这里不做具体介绍，有兴趣的读者可以参考 `Hprose\Http\Client`、`Hprose\Socket\Client` 和 `Hprose\Swoole\WebSocket\Client` 等底层网络协议绑定客户端的实现源码。
+
+`Hprose\Http\Client`、`Hprose\Socket\Client` 这两个类是可以直接使用的构造器。它们分别对应 HTTP 客户端、Socket 客户端。
+
+创建方式如下：
+
+```php
+$client = new \Hprose\Http\Client([$uris = null[, $async = true]]);
+```
+
+`[]` 内的参数表示可选参数。
+
+当两个参数都省略时，创建的客户端是未初始化的异步客户端，后面需要使用 `useService` 方法进行初始化，这是后话，暂且不表。
+
+第 1 个参数 `$uris` 是服务器地址，该服务器地址可以是单个的地址字符串，也可以是由多个地址字符串组成的数组。当该参数为多个地址字符串组成的数组时，客户端会从这些地址当中随机选择一个作为服务地址。因此需要保证这些地址发布的都是完全相同的服务。
+
+第 2 个参数 `$async` 表示是否是异步客户端，在 Hprose 2.0 for PHP 中，默认创建的都是异步客户端，这是因为 Swoole 客户端只支持异步，为了可以方便的在普通客户端和 Swoole 客户端之间切换，所以默认设置为异步。异步客户端在进行远程调用时，返回值为一个 `promise` 对象。而同步客户端在进行远程调用时，返回值为实际返回值（或者抛出异常）。客户端创建之后，该类型不能被更改。
+
+例如：
+
+**创建一个同步的 HTTP 客户端**
+```php
+$client = new \Hprose\Http\Client('http://hprose.com/example/', false);
+```
+
+**创建一个同步的 TCP 客户端**
+```php
+$client = new \Hprose\Socket\Client('tcp://127.0.0.1:1314', false);
+```
+
+**创建一个异步的 Unix Socket 客户端**
+```php
+$client = new \Hprose\Socket\Client('unix:/tmp/my.sock');
+```
+
+**创建一个异步的 WebSocket 客户端**
+```php
+$client = new \Hprose\Swoole\WebSocket\Client('ws://127.0.0.1:8080/');
+```
+
+>
+注意：如果要使用 swoole 客户端，需要在 composer.json 加入对 `hprose/hprose-swoole` 的引用。
+>
+
+另外，如果创建的是 Swoole 的客户端，还有更简单的方式：
+
+**同样创建一个异步的 WebSocket 客户端**
+```php
+$client = new \Hprose\Swoole\Client('ws://127.0.0.1:8080/');
+```
+
+也就是说，只需要使用 `Hprose\Swoole\Client`，就可以创建所有 Swoole 支持的客户端了，Hprose 可以自动根据服务器地址的 scheme 来判断客户端类型。
+
