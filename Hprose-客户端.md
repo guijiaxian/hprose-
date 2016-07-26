@@ -73,7 +73,7 @@ $client = new \Hprose\Swoole\WebSocket\Client('ws://127.0.0.1:8080/');
 ```
 
 >
-注意：如果要使用 swoole 客户端，需要在 composer.json 加入对 `hprose/hprose-swoole` 的引用。
+注意：如果要使用 swoole 客户端，需要在 composer.json 加入对 `hprose/hprose-swoole` 的引用。且 Swoole 客户端不支持第二个参数。
 >
 
 另外，如果创建的是 Swoole 的客户端，还有更简单的方式：
@@ -85,3 +85,49 @@ $client = new \Hprose\Swoole\Client('ws://127.0.0.1:8080/');
 
 也就是说，只需要使用 `Hprose\Swoole\Client`，就可以创建所有 Swoole 支持的客户端了，Hprose 可以自动根据服务器地址的 scheme 来判断客户端类型。
 
+
+## 通过工厂方法 `create` 创建客户端
+
+```php
+$client = \Hprose\Client->create([$uris = null[, $async = true]]);
+```
+
+`\Hprose\Client->create` 支持创建 Hprose 核心库上的客户端，`Hprose\Swoole\Client->create` 支持创建 swoole 的客户端。例如：
+
+**创建一个同步的 HTTP 客户端**
+```php
+$client = \Hprose\Client->create('http://hprose.com/example/', false);
+```
+
+**创建一个同步的 TCP 客户端**
+```php
+$client = \Hprose\Client->create('tcp://127.0.0.1:1314', false);
+```
+
+**创建一个异步的 Unix Socket 客户端**
+```php
+$client = \Hprose\Client->create('unix:/tmp/my.sock');
+```
+
+**创建一个异步的 WebSocket 客户端**
+```php
+$client = new \Hprose\Swoole\Client-create('ws://127.0.0.1:8080/');
+```
+
+## 注册自己的客户端实现类
+
+如果你自己创建了一个客户端实现，你可以通过：
+```php
+Client::registerClientFactory($scheme, $clientFactory);
+```
+
+或者
+```php
+Client::tryRegisterClientFactory($scheme, $clientFactory);
+```
+
+这两个静态方法来注册自己的客户端实现。
+
+注册之后，你就可以使用 `create` 方法来创建你的客户端对象了。
+
+`registerClientFactory` 方法会覆盖原来已注册的相同 `$scheme` 的客户端类，`tryRegisterClientFactory` 方法不会覆盖。
