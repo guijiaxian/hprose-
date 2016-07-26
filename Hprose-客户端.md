@@ -12,5 +12,17 @@ Socket 客户端支持跟 TCP、Unix Socket 绑定的 Hprose 服务器通讯，�
 
 WebSocket 客户端支持跟 ws、wss 绑定的 Hprose 服务器通讯。
 
+为了清晰对比，这里列出一个表格：
+
+功能列表          |    hprose-php     |    hprose-swoole
+:---------------:|:------------------:|:-----------------:
+   同步调用       | :white_check_mark: |        :x:  
+   异步调用       | :white_check_mark: | :white_check_mark:  
+  HTTP 客户端     | :white_check_mark: | :white_check_mark:  
+ Socket 客户端    | :white_check_mark: | :white_check_mark: 
+WebSocket 客户端  |        :x:         | :white_check_mark:
+   命令行环境     | :white_check_mark: | :white_check_mark: 
+  非命令行环境    | :white_check_mark: |         :x: 
+
 尽管支持这么多不同的底层网络协议，但除了在对涉及到底层网络协议的参数设置上有所不同以外，其它的用法都完全相同。因此，我们在下面介绍 Hprose 客户端的功能时，若未涉及到底层网络协议的区别，就以 HTTP 客户端为例来进行说明。
 
