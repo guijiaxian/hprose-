@@ -595,3 +595,109 @@ $user = $client->user;
 $userid = $user->add(array('name' => 'Tom', 'age' => 18));
 $user->remove($userid);
 ```
+
+## 链式调用
+
+上面我们讲了很多同步调用，异步调用用的也是传统的回调方式。下面我们来讲讲 Hprose 2.0 新增的 `promise` 方式的异步调用。
+
+对于 Hprose 异步客户端来说，使用 `invoke` 方法或者直接使用远程方法名调用，返回的结果是一个 `promise` 对象。因此，它可以进行链式调用，例如：
+
+```php
+<?php
+require_once "../../vendor/autoload.php";
+
+use Hprose\Client;
+
+$client = Client::create('http://hprose.com/example/');
+
+$client->sum(1, 2)
+       ->then(function($result) use ($client) {
+            return $client->sum($result, 3);
+       })
+       ->then(function($result) use ($client) {
+            return $client->sum($result, 4);
+       })
+       ->then(function($result) {
+            var_dump($result);
+       });
+```
+
+该程序的结果为：
+
+>
+```
+10
+```
+>
+
+当你有很多回调的时候，这种方式要比层层回调的异步方式清晰的多。但是，这还不算最简单的。
+
+## 更简单的顺序调用
+
+前面我们讲过，当使用方法名调用时，远程调用的参数本身也可以是 `promise` 对象。
+
+因此，上面的链式调用还可以直接简化为：
+
+```php
+use Hprose\Client;
+
+$client = Client::create('http://hprose.com/example/');
+
+$client->sum($client->sum($client->sum(1, 2), 3), 4)
+       ->then(function($result) {
+            var_dump($result);
+       });
+```
+
+这比上面的链式调用更加直观。但是还可以更简单，例如：
+
+```php
+use Hprose\Client;
+use Hprose\Future;
+
+$client = Client::create('http://hprose.com/example/');
+
+$var_dump = Future\wrap('var_dump');
+$sum = $client->sum;
+
+$var_dump($sum($sum($sum(1, 2), 3), 4));
+```
+
+远程方法可以直接作为一个闭包对象返回，之后可以单独调用。然后在加上用 `wrap` 函数包装的 `var_dump`。
+
+现在代码看上去完全是同步的啦。
+
+这种方式看上去是同步的，但是实际上却可以并行异步执行，尤其是当一个调用的参数依赖于其它几个调用的结果时候，例如：
+
+```php
+use Hprose\Client;
+use Hprose\Future;
+
+$client = Client::create('http://hprose.com/example/');
+
+$var_dump = Future\wrap('var_dump');
+$sum = $client->sum;
+
+$r1 = $sum(1, 3, 5, 7, 9);
+$r2 = $sum(2, 4, 6, 8, 10);
+$r3 = $sum($r1, $r2);
+$var_dump($r1, $r2, $r3);
+```
+
+这个程序的运行结果为：
+
+>
+```
+int(25)
+int(30)
+int(55)
+```
+>
+
+该程序虽然是异步执行，但是书写方式却是同步的，不需要写任何回调。
+
+而且这里还有一个好处，`$r1` 和 `$r2` 两个调用的参数之间没有依赖关系，是两个相互独立的调用，因此它们将会并行执行，而 `$r3` 的调用依赖于 `$r1` 和 `$r2`，因此 `$r3` 会等 `$r1` 和 `$r2` 都执行结束后才会执行。也就是说，它不但保证了有依赖关系的调用会根据依赖关系顺序执行，而且对于没有依赖的调用还能保证并行执行。
+
+这是回调方式和链式调用方式都很难做到的，即使可以做到，也会让代码变得晦涩难懂。
+
+这也是 Hprose 2.0 最大的改进之一。
