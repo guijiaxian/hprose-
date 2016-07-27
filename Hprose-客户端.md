@@ -355,7 +355,7 @@ function callback($result, $args);
 function callback($result, $args, $error);
 ```
 
-回调函数支持这四种格式，另外，只要是 `callable` 类型就可以，不管是函数，方法，还是闭包和可执行对象，都可以。
+回调函数支持这四种格式， 在使用 `invoke` 方法时，`$callback` 只要是 `callable` 类型就可以，不管是函数，方法，还是闭包和可执行对象，都可以。但是如果是用方法名直接调用，`$callback` 必须是闭包类型。
 
 下面介绍一下参数的意义
 
