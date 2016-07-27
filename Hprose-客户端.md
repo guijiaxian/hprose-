@@ -536,3 +536,30 @@ array(7) {
 ### userdata
 
 该属性是一个对象，它用于存放一些用户自定义的数据。这些数据可以通过 `$context` 对象在整个调用过程中进行传递。当你需要实现一些特殊功能的 Filter 或 Handler 时，可能会用到它。
+
+上面这些设置除了可以作为 `settings` 参数的属性传入以外，还可以在远程方法上直接进行属性设置，这些设置会成为 `settings` 参数的默认值。例如上面引用参数传递的例子还可以写成这样：
+
+```php
+use Hprose\Client;
+
+$client = Client::create('http://hprose.com/example/', false);
+
+$weeks = array(
+    'Monday' => 'Mon',
+    'Tuesday' => 'Tue',
+    'Wednesday' => 'Wed',
+    'Thursday' => 'Thu',
+    'Friday' => 'Fri',
+    'Saturday' => 'Sat',
+    'Sunday' => 'Sun'
+);
+
+$args = array($weeks);
+
+$client->swapKeyAndValue["byref"] = true;
+$client->swapKeyAndValue($weeks, function($result, $args) {
+    var_dump($args[0]);
+});
+```
+
+但是要注意，这样设置的属性，只有用远程方法名直接调用才有效，使用 `invoke` 方法调用时无效。
