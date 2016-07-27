@@ -436,3 +436,74 @@ string(18) "Rs11"Hello World"z"
 
 不过这里可以透露一个小秘密，如果你是使用方法名进行远程调用（也就是说，你不是直接使用 `invoke` 方法），而且使用了 `$callback` 参数（我们这里不是为了提它，只是不得不提它），那么在 `$callback` 参数后面的设置确实可以使用一个普通数组，而不需要套一个 `new InvokeSettings` 的包装。不过为了避免你用顺了手，你最好还是不要这样玩。就当我没提好了。
 
+### byref
+
+该设置表示调用是否为引用参数传递方式。例如：
+
+```php
+<?php
+require_once "../../vendor/autoload.php";
+
+use Hprose\Client;
+use Hprose\InvokeSettings;
+
+$client = Client::create('http://hprose.com/example/', false);
+
+$weeks = array(
+    'Monday' => 'Mon',
+    'Tuesday' => 'Tue',
+    'Wednesday' => 'Wed',
+    'Thursday' => 'Thu',
+    'Friday' => 'Fri',
+    'Saturday' => 'Sat',
+    'Sunday' => 'Sun'
+);
+
+$args = array($weeks);
+$client->invoke('swapKeyAndValue', $args, new InvokeSettings(array('byref' => true)));
+var_dump($args[0]);
+
+$client->swapKeyAndValue($weeks, function($result, $args) {
+    var_dump($args[0]);
+}, array('byref' => true));
+```
+
+运行结果为：
+
+>
+```
+array(7) {
+  ["Mon"]=>
+  string(6) "Monday"
+  ["Tue"]=>
+  string(7) "Tuesday"
+  ["Wed"]=>
+  string(9) "Wednesday"
+  ["Thu"]=>
+  string(8) "Thursday"
+  ["Fri"]=>
+  string(6) "Friday"
+  ["Sat"]=>
+  string(8) "Saturday"
+  ["Sun"]=>
+  string(6) "Sunday"
+}
+array(7) {
+  ["Mon"]=>
+  string(6) "Monday"
+  ["Tue"]=>
+  string(7) "Tuesday"
+  ["Wed"]=>
+  string(9) "Wednesday"
+  ["Thu"]=>
+  string(8) "Thursday"
+  ["Fri"]=>
+  string(6) "Friday"
+  ["Sat"]=>
+  string(8) "Saturday"
+  ["Sun"]=>
+  string(6) "Sunday"
+}
+```
+>
+注意：同步调用需要使用 `invoke` 方法才支持引用参数传递。异步调用要用回调方式才支持引用参数传递。
