@@ -563,3 +563,35 @@ $client->swapKeyAndValue($weeks, function($result, $args) {
 ```
 
 但是要注意，这样设置的属性，只有用远程方法名直接调用才有效，使用 `invoke` 方法调用时无效。
+
+## 直接用远程方法名调用
+
+上面在介绍 `invoke` 方法时，我们已经在例子中看到过直接用远程方法名调用的用法了。这里再补充一点高级的。
+
+当你的服务器发布了多个对象，并且每个对象上都有一组自己的方法，还有可能有重名的方法，因此，你可能会为每个对象添加一个名称空间（namespace），它在 Hprose 中是以别名前缀的方式实现的。
+
+例如：服务器端发布了一个 `user` 对象，一个 `order` 对象。上面都有 `add`, `update`, `remove` 和 `get` 方法。发布 `user` 对象时，添加了一个 `user` 名空间，发布 `order` 对象时，添加了一个 `order` 名空间。
+
+这样服务器端发布的方法名实际上是：`user_add`, `user_update`, `user_remove`，`user_get`, `order_add`, `order_update`, `order_remove` 和 `order_get`。
+
+客户端可以直接用这些方法名进行调用，例如：
+
+```php
+$userid = $client->user_add(array('name' => 'Tom', 'age' => 18));
+$client->user_remove($userid);
+```
+
+还可以这样调用：
+
+```php
+$userid = $client->user->add(array('name' => 'Tom', 'age' => 18));
+$client->user->remove($userid);
+```
+
+这两种调用方式都是可以的，后一种方法看上去更清晰，而且还可以简化为：
+
+```php
+$user = $client->user;
+$userid = $user->add(array('name' => 'Tom', 'age' => 18));
+$user->remove($userid);
+```
