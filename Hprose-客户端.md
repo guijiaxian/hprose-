@@ -258,13 +258,13 @@ $name 是字符串类型，$e 在 PHP 5 中 为 Exception 类型或它的子类�
 
 设置 retry 属性值。
 
-## isIdempontent 方法
+## isIdempotent 方法
 
-获取 idempontent 属性值。
+获取 idempotent 属性值。
 
-## setIdempontent 方法
+## setIdempotent 方法
 
-设置 idempontent 属性值。
+设置 idempotent 属性值。
 
 ## isFailswitch 方法
 
