@@ -110,3 +110,28 @@ $server->start();
 
 该版本的 Socket 服务器没有使用 `pcntl` 之类的扩展，因此可以在 Windows 中使用。该服务是通过单线程异步方式实现的（类似于 node.js），因此该服务支持高并发，也支持推送服务，但是对于每一个服务方法来说，最好执行时间不要过长，因为这会阻塞整个服务。如果你确实有比较耗时的服务要执行，可以考虑开起子进程，借助消息队列将结果返回异步化等方法来自行解决。
 
+当然你也可以考虑使用 Swoole 版本的 Socket 服务器，例如：
+
+```php
+use Hprose\Swoole\Server;
+
+function hello($name) {
+    return "Hello $name!";
+}
+$server = new Server("tcp://0.0.0.0:1314");
+$server->addFunction('hello');
+$server->start();
+```
+
+在基本方法的使用上，`Hprose\Swoole\Server` 和 `Hprose\Socket\Server` 是一样的，因此上面的代码中，只有 `use` 语句不同，其它的代码都相同。
+
+对于上面的代码来说，`Hprose\Swoole\Server` 和 `Hprose\Socket\Server` 的性能是几乎一样的，看不出什么优势来。因为默认 Swoole 的 TCP 服务器是使用 Base 模式运行的，该方式跟 `Hprose\Socket\Server` 的方式是一致的。默认采用这种模式，是因为只有这种模式下才支持推送服务，而且该模式下服务编写简单，不需要考虑多进程数据通信问题，另外，新版本的 swoole 对 Base 模式也做了强化，提供了更多的设置和优化，因此 Hprose 默认采用这种模式。
+
+swoole 的服务器还提供了一种进程模式，但是该模式下，多个进程因为不能共享内存，所以推送功能无法使用。如果你不需要推送服务，你可以在创建服务器时这样来指定进程模式：
+
+```php
+$server = new Server("tcp://0.0.0.0:1314", SWOOLE_PROCESS);
+```
+
+关于 swoole 的这两种模式可以参见 [[swoole 的文档|http://wiki.swoole.com/wiki/page/353.html]]，文档里介绍了 3 种模式，因为其中的线程模式，现在新版本的 swoole 已经不支持了，所以这里就不提了。
+
