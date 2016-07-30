@@ -137,7 +137,7 @@ $server = new Server("tcp://0.0.0.0:1314", SWOOLE_PROCESS);
 
 ## 创建 UNIX Socket 服务器
 
-```
+```php
 use Hprose\Socket\Server;
 
 function hello($name) {
@@ -149,7 +149,7 @@ $server->addFunction('hello');
 $server->start();
 ```
 
-```
+```php
 use Hprose\Swoole\Server;
 
 function hello($name) {
@@ -163,3 +163,4 @@ $server->start();
 
 同样是这两种方式都可以，如何选择请随意。
 
+这两个 Unix Socket 服务器，在启动时，稍微一些区别，对于 `Hprose\Socket\Server`，如果 `/tmp/my.sock` 文件已存在，服务器将不会启动，而是抛出异常。而对于 `Hprose\Swoole\Server` 则不管是否存在（哪怕有另一个服务正在运行），都会正常启动，不会报错。
