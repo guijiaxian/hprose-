@@ -135,3 +135,31 @@ $server = new Server("tcp://0.0.0.0:1314", SWOOLE_PROCESS);
 
 关于 swoole 的这两种模式可以参见 [[swoole 的文档|http://wiki.swoole.com/wiki/page/353.html]]，文档里介绍了 3 种模式，因为其中的线程模式，现在新版本的 swoole 已经不支持了，所以这里就不提了。
 
+## 创建 UNIX Socket 服务器
+
+```
+use Hprose\Socket\Server;
+
+function hello($name) {
+    return "Hello $name!";
+}
+
+$server = new Server("unix:/tmp/my.sock");
+$server->addFunction('hello');
+$server->start();
+```
+
+```
+use Hprose\Swoole\Server;
+
+function hello($name) {
+    return "Hello $name!";
+}
+
+$server = new Server("unix:/tmp/my.sock");
+$server->addFunction('hello');
+$server->start();
+```
+
+同样是这两种方式都可以，如何选择请随意。
+
