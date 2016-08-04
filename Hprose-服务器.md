@@ -164,3 +164,25 @@ $server->start();
 同样是这两种方式都可以，如何选择请随意。
 
 这两个 Unix Socket 服务器，在启动时，稍微一些区别，对于 `Hprose\Socket\Server`，如果 `/tmp/my.sock` 文件已存在，服务器将不会启动，而是抛出异常。而对于 `Hprose\Swoole\Server` 则不管是否存在（哪怕有另一个服务正在运行），都会正常启动，不会报错。
+
+## 创建 Web Socket 服务器
+
+```php
+use Hprose\Swoole\Server;
+
+function hello($name) {
+    return "Hello $name!";
+}
+$server = new Server("ws://0.0.0.0:8088");
+$server->addFunction('hello');
+$server->start();
+```
+
+目前，Web Socket 服务器只有 Swoole 版本支持。创建方式除了地址改为 web socket 的地址格式以外，其它都一样。这里就不多做解释了。
+
+## 其它方式
+
+Hprose 还提供了可以跟 Yii、Symfony、PSR7 等框架结合使用的 HTTP 服务器，这些都是作为单独项目模块提供的，这里就不多做介绍了。
+
+# 服务设置
+
