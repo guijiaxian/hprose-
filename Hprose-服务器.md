@@ -218,3 +218,53 @@ Hprose 还提供了可以跟 Yii、Symfony、PSR7 等框架结合使用的 HTTP 
 
 设置 `simple` 属性值。
 
+## passContext 属性
+
+该属性为 boolean 类型，默认值为 `false`。
+
+该属性表示在调用中是否将 `$context` 自动作为最后一个参数传入调用方法。
+
+你也可以针对某个服务函数/方法进行单独设置。
+
+除非所有的服务方法的参数最后都定义了 `$context` 参数。否则，建议不要修改默认设置，而是针对某个服务函数/方法进行单独设置。
+
+## isPassContext 方法
+
+获取 `passContext` 属性值。
+
+## setPassContext 方法
+
+设置 `passContext` 属性值。
+
+## errorDelay 属性
+
+该属性为整型值，默认值为 10000，单位是毫秒。
+
+该属性表示在调用执行时，如果发生异常，将延时一段时间后再返回给客户端。
+
+在关闭该功能的情况下，如果某个服务因为编写错误抛出异常，客户端又反复重试该调用，可能会导致服务器不能正常处理其它业务请求而造成的假死机现象。使用该功能，可以避免这种问题发生。
+
+如果你不需要该功能，设置为 0 就可以关闭它。
+
+## getErrorDelay 方法
+
+获取 `errorDelay` 的属性值。
+
+## setErrorDelay 方法
+
+设置 `errorDelay` 的属性值。
+
+## errorTypes 属性
+
+设置捕获错误的级别，默认值为 `error_reporting` 函数的返回值，即 PHP 的默认设置。
+
+捕获到错误，警告、提示都会以异常的形式发送给客户端。
+
+## getErrorTypes 方法
+
+获取 `errorTypes` 的属性值。
+
+## setErrorTypes 方法
+
+设置 `errorTypes` 的属性值。
+
