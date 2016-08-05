@@ -115,3 +115,13 @@ function(\stdClass $context) { ... }
 ```
 
 该事件中抛出异常不会对服务器和客户端有任何影响。
+
+# `onError` 事件
+
+该事件仅被 `Hprose\Socket\Server` 所支持，其它服务器不支持，该事件在服务器与客户端发生通讯错误，无法将错误发送给客户端时触发。该事件的处理函数形式为：
+
+```php
+function($error, \stdClass $context) { ... }
+```
+
+该事件中抛出异常不会对服务器和客户端有任何影响。
