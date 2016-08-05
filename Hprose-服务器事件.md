@@ -1,3 +1,5 @@
+# 概述
+
 Hprose 服务器端提供了几个事件，它们分别是：
 
 * `onBeforeInvoke`
@@ -30,3 +32,56 @@ $server->onSendError = function($error, \stdClass $context) {
     ...
 }
 ```
+
+对于 `onBeforeInvoke`，`onAfterInvoke` 和 `onSendError` 这三个事件属性的事件处理函数允许有返回值。
+
+`onBeforeInvoke` 和 `onAfterInvoke` 可以返回一个 `promise` 对象，当该 `promise` 对象变为失败（`rejected`）状态时，将会返回失败原因作为返回给客户端的错误信息。
+
+`onBeforeInvoke`，`onAfterInvoke` 和 `onSendError` 都可以直接返回一个 `Error` 实例对象来作为返回给客户端的错误信息。
+
+`onBeforeInvoke`，`onAfterInvoke` 和 `onSendError` 还可以通过抛出异常来返回错误信息给客户端。
+
+# `onBeforeInvoke` 事件
+
+该事件在调用执行前触发，该事件的处理函数形式为：
+
+```php
+function($name, &$args, $byref, \stdClass $context) { ... }
+```
+
+参数 `$name` 是服务函数/方法名。
+参数 `$args` 是调用的参数数组，可以声明为引用参数。
+参数 `$byref` 表示是否是引用参数传递。
+参数 `$context` 是该调用的上下文参数。
+
+如果在该事件中抛出异常、返回错误对象、或者返回一个失败（`rejected`）状态的 `promise` 对象。则不再执行服务函数/方法。
+
+# `onAfterInvoke` 事件
+
+该事件在调用执行后触发，该事件的处理函数形式为：
+
+```php
+function($name, &$args, $byref, &$result, \stdClass $context) { ... }
+```
+
+参数 `$name` 是服务函数/方法名。
+参数 `$args` 是调用的参数数组，可以声明为引用参数。
+参数 `$byref` 表示是否是引用参数传递。
+参数 `$result` 是调用执行的结果，可以声明为引用参数。
+参数 `$context` 是该调用的上下文参数。
+
+如果在该事件中抛出异常、返回错误对象、或者返回一个失败（`rejected`）状态的 `promise` 对象。则不再返回结果 `$result`，而是将错误信息返回给客户端。
+
+# `onSendError` 事件
+
+该事件在服务端发生错误时触发，该事件的处理函数形式为：
+
+```php
+function(&$error, \stdClass $context) { ... }
+```
+
+如果在该事件中抛出异常、返回错误对象、或者返回一个失败（`rejected`）状态的 `promise` 对象。则该错误会替代原来的错误信息返回给客户端。
+
+$error 参数可以声明为引用参数，在事件中可以对 $error 进行修改。
+
+当服务器与客户端之间发生网络中断性的错误时，仍然会触发该事件，但是不会有错误信息发送给客户端。
