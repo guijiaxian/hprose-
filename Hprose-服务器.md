@@ -421,3 +421,27 @@ $server->start();
 不过如果我们使用的是 Swoole 的 Http 客户端，就不需要手动调用 `loop` 方法了。所以用异步调用，首选 swoole 客户端。
 
 如果用 swoole 异步客户端，`$client->invoke` 方法的返回值是一个 `promise` 对象，也就是说，服务函数/方法其实也可以直接返回 `promise` 对象，异步服务不一定非要用 callback 方式。
+
+## addAsyncMissingFunction 方法
+
+```php
+public function addAsyncMissingFunction($func[, array $options = array()]);
+```
+
+该方法与 `addMissingFunction` 功能相同，但是 `async` 选项被默认设置为 `true`。也就是说，它是 `addMissingFunction` 发布异步方法的简写形式。
+
+## addFunctions 方法
+
+```php
+public function addFunctions(array $funcs[, array $aliases = array()[, array $options = array()]]);
+```
+
+如果你想同时发布多个方法，可以使用该方法。
+
+`$funcs` 是函数数组，数组元素必须为 callable 类型的对象。
+
+`$aliases` 是别名数组，数组元素必须是字符串，并且需要与 `$funcs` 数组中每个相同键名的元素一一对应。
+
+当 `$funcs` 中的函数全都是具名函数时，`$aliases` 可以省略。
+
+`$options` 的选项值跟 `addFunction` 方法相同。
