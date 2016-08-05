@@ -268,3 +268,78 @@ Hprose 还提供了可以跟 Yii、Symfony、PSR7 等框架结合使用的 HTTP 
 
 设置 `errorTypes` 的属性值。
 
+# 发布服务
+
+hprose 为发布服务提供了多个方法，这些方法可以随意组合，通过这种组合，你所发布的服务将不会局限于某一个对象，或某一个类，而是可以将不同的函数和方法随意重新组合成一个服务。
+
+## addFunction 方法
+
+```php
+public function addFunction($func[, $alias = ''[, array $options = array()]]);
+```
+
+该方法的功能是发布函数为远程调用。
+
+`$func` 不仅仅可以是函数名，也可以是方法，例如：array("SomeClass", "somemethod"), array($someObj, "someMethod")，还可以是闭包（匿名函数），还可以是 callable 对象（就是实现了 `__invoke` 魔术方法的对象），还可以是生成器函数（就是 Hprose 支持的协程）。
+
+`$alias` 是发布函数的别名，该别名是客户端调用时所使用的名字。如果 `$func` 本身是函数名，那么 `$alias` 参数可以省略，省略之后，发布的名称跟 `$func` 的名字一致。如果 `$func` 是方法，那么 `$alias` 省略之后，发布的名称跟 `$func` 中的方法名部分相同。其它情况下，不能省略 `$alias` 参数。别名中，你可以使用 `_` 分隔符。当客户端调用时，根据不同的语言，可以自动转换成 `.` 分隔的调用，或者 `->` 分隔的调用。在别名中不要使用 `.` 分隔符。
+
+`$options` 是一个关联数组，它里面包含了一些对该服务函数的特殊设置，有以下设置项可以设置：
+
+* mode
+* simple
+* oneway
+* async
+* passContext
+
+### mode
+
+该设置表示该服务函数返回的结果类型，它有4个取值，分别是：
+
+* `Hprose\ResultMode::Normal`
+* `Hprose\ResultMode::Serialized`
+* `Hprose\ResultMode::Raw`
+* `Hprose\ResultMode::RawWithEndTag`
+
+`Hprose\ResultMode::Normal` 是默认值，表示返回正常的已被反序列化的结果。
+
+`Hprose\ResultMode::Serialized` 表示返回的结果保持序列化的格式。
+
+`Hprose\ResultMode::Raw` 表示返回原始数据。
+
+`Hprose\ResultMode::RawWithEndTag` 表示返回带有结束标记的原始数据。 
+
+这四种结果的形式在客户端的相关介绍中已有说明，这里不再重复。
+
+不过要注意的是，这里的设置跟客户端的设置并没有直接关系，这里设置的是服务函数本身返回的数据格式，即使服务函数返回的是 `Hprose\ResultMode::RawWithEndTag` 格式的数据，客户端仍然可以以其它三种格式来接收数据。
+
+该设置通常用于做高性能的缓存或代理服务器。我们在后面介绍 `addMissingFunction` 方法时再举例说明。
+
+### simple
+
+该设置表示本服务函数所返回的结果是否为简单数据。默认值与全局设置一致。前面在属性介绍中已经进行了说明，这里就不在重复。
+
+### oneway
+
+该设置表示本服务函数是否不需要等待返回值。当该设置为 `true` 时，调用会异步开始，并且不等待结果，立即返回 `null` 给客户端。默认值为 `false`。
+
+### async
+
+该设置表示本服务函数是否为异步函数，异步函数的最后一个参数是一个回调函数，用户需要在异步函数中调用该回调方法来传回返回值，例如：
+
+```php
+use Hprose\Http\Server;
+
+function hello($name, $callback) {
+    $callback("Hello $name!");
+}
+
+$server = new Server();
+$server->addFunction('hello', array("async" => true));
+$server->start();
+```
+
+### passContext
+
+该设置与 `$server->passContext` 属性的功能相同。但在这里它是针对该服务函数的单独设置。例如：
+
