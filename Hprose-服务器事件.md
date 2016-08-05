@@ -85,3 +85,33 @@ function(&$error, \stdClass $context) { ... }
 $error 参数可以声明为引用参数，在事件中可以对 $error 进行修改。
 
 当服务器与客户端之间发生网络中断性的错误时，仍然会触发该事件，但是不会有错误信息发送给客户端。
+
+# `onSendHeader` 事件
+
+该事件在服务器发送 HTTP 头时触发，该事件的处理函数形式为：
+
+```php
+function(\stdClass $context) { ... }
+```
+
+如果在该事件中抛出异常，则不再执行后序操作，直接返回异常信息给客户端。
+
+# `onAccept` 事件
+
+该事件在 Socket 或 WebSocket 服务器接受客户端连接时触发，该事件的处理函数形式为：
+
+```php
+function(\stdClass $context) { ... }
+```
+
+如果在该事件中抛出异常，则会断开跟该客户端的连接。
+
+# `onClose` 事件
+
+该事件在 Socket 或 WebSocket 服务器跟客户端之间的连接关闭时触发，该事件的处理函数形式为：
+
+```php
+function(\stdClass $context) { ... }
+```
+
+该事件中抛出异常不会对服务器和客户端有任何影响。
