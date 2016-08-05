@@ -343,3 +343,33 @@ $server->start();
 
 该设置与 `$server->passContext` 属性的功能相同。但在这里它是针对该服务函数的单独设置。例如：
 
+```php
+use Hprose\Socket\Server;
+
+function hello($name, $context) {
+    return "Hello " . $name . '! -- ' . stream_socket_get_name($context->socket, true);
+}
+
+$server = new Server("tcp://0.0.0.0:1314");
+$server->addFunction('hello', array("passContext" => true));
+$server->start();
+```
+
+这里使用的是 `Hprose\Socket\Server`，所以 `$context->socket` 可以得到服务器接收到的客户端连接对象。要注意不同的服务器，$context 中包含的内容是不同的，要根据具体使用的服务器来确定用法。所以如果要编写通用的服务，要避免使用这些跟具体服务器有关的上下文属性。
+
+`$context->clients` 这个属性上面包含了关于推送的方法，这些方法是通用的，不过也仅在独立服务器上通用，在 fpm、cgi 等模式下运行的 HTTP 服务器上不支持。
+
+当 `passContext` 和 `async` 同时设置为 `true` 的时候，服务函数的 `$context` 参数应该放在 `$callback` 参数之前，例如：
+
+```php
+use Hprose\Socket\Server;
+
+function hello($name, $context, $callback) {
+    $callback("Hello " . $name . '! -- ' . stream_socket_get_name($context->socket, true));
+}
+
+$server = new Server("tcp://0.0.0.0:1314");
+$server->addFunction('hello', array("async" => true, "passContext" => true));
+$server->start();
+```
+
