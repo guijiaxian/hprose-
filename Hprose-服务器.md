@@ -536,3 +536,32 @@ $server->addMethods(array('add'，'del'，'update'，'query'), $user,
 
 最后的 `$options` 选项值跟 `addFunction` 方法相同。
 
+## addAsyncInstanceMethods 方法
+
+```php
+public function addAsyncInstanceMethods($object[, $class = ''[, $aliasPrefix = ''[, array $options = array()]]]);
+```
+
+该方法与 `addInstanceMethods` 功能相同，但是 `async` 选项被默认设置为 `true`。也就是说，它是 `addInstanceMethods` 发布异步方法的简写形式。
+
+## addClassMethods 方法
+
+```php
+public function addClassMethods($class[, $scope = ''[, $aliasPrefix = ''[, array $options = array()]]]);
+```
+
+该方法用来发布 `$class` 上定义的所有静态方法。
+
+`$scope` 是方法实际执行所在的类，通常 `$scope` 跟 `$class` 是等同的（默认值），不过你也可以设置 `$scope` 为 `$class` 的父类。
+
+`$aliasPrefix` 作用跟 `addInstanceMethods` 的 `$aliasPrefix` 参数一样。
+
+最后的 `$options` 选项值跟 `addFunction` 方法相同。
+
+## addAsyncClassMethods 方法
+
+```php
+public function addAsyncClassMethods($class[, $scope = ''[, $aliasPrefix = ''[, array $options = array()]]]);
+```
+
+该方法与 `addClassMethods` 功能相同，但是 `async` 选项被默认设置为 `true`。也就是说，它是 `addClassMethods` 发布异步方法的简写形式。
