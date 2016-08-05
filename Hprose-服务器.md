@@ -477,3 +477,33 @@ public function addAsyncMethod($method, $scope[, $alias = ''[, array $options = 
 
 该方法与 `addMethod` 功能相同，但是 `async` 选项被默认设置为 `true`。也就是说，它是 `addMethod` 发布异步方法的简写形式。
 
+## addMissingMethod 方法
+
+```php
+public function addMissingMethod($method, $scope[, array $options = array()]);
+```
+
+该方法的功能与 `addMissingMethod` 类似。它们之前的区别跟 `addMethod` 和 `addFunction` 相同。这里就不详细介绍了。
+
+## addAsyncMissingMethod 方法
+
+```php
+public function addAsyncMissingMethod($method, $scope[, array $options = array()]);
+```
+
+该方法与 `addMissingMethod` 功能相同，但是 `async` 选项被默认设置为 `true`。也就是说，它是 `addMissingMethod` 发布异步方法的简写形式。
+
+## addMethods 方法
+
+```php
+public function addMethods($methods, $scope[, $aliases = array()[, array $options = array()]]);
+```
+
+该方法的功能与 `addFunctions` 类似。它们之前的区别跟 `addMethod` 和 `addFunction` 相同。这里就不详细介绍了。
+
+## addAsyncMethods 方法
+
+```php
+public function addAsyncMethods($methods, $scope[, $aliases = array()[, array $options = array()]]);
+```
+
