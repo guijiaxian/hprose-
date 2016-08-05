@@ -1,6 +1,10 @@
+# 普通 Socket 服务器
+
+该服务器实现是基于 PHP 内置的 Stream 实现的，它支持以下属性和方法：
+
 ## settings 属性
 
-因为该实现是基于 PHP 内置的 Stream 实现的，该属性的设置值为即 `stream_context_create` 的 `$options` 参数的值。其具体设置可以参见：[[PHP 官方手册——上下文（Context）选项和参数|http://www.php.net/manual/zh/context.php]] ，当使用 TCP 服务器时，可以参见 [[套接字上下文选项|http://php.net/manual/zh/context.socket.php]] 进行设置，当使用 SSL 服务器时，可以参见 [[SSL 上下文选项|http://php.net/manual/zh/context.ssl.php]] 进行设置。
+该属性的设置值为即 `stream_context_create` 的 `$options` 参数的值。其具体设置可以参见：[[PHP 官方手册——上下文（Context）选项和参数|http://www.php.net/manual/zh/context.php]] ，当使用 TCP 服务器时，可以参见 [[套接字上下文选项|http://php.net/manual/zh/context.socket.php]] 进行设置，当使用 SSL 服务器时，可以参见 [[SSL 上下文选项|http://php.net/manual/zh/context.ssl.php]] 进行设置。
 
 ## set 方法
 
@@ -101,3 +105,43 @@ function $server->clear($id);
 ## addListener 方法
 
 用于添加新的监听地址。新增的监听地址必须为同一类型的。
+
+# Swoole 的 Socket 服务器
+
+该服务器实现是基于 `swoole_server` 实现的，它支持以下属性和方法：
+
+## server 属性
+
+只读属性，它是底层的 `swoole_server` 对象。你可以通过它来调用 swoole 服务器的功能。
+
+## settings 属性
+
+用于设置 swoole 服务器运行时的各项参数。具体有哪些设置，可参见 swoole 的官方文档，不过需要注意，有一些关于协议解析的选项参数不要设置。
+
+## set 方法
+
+用于设置 `settings` 的属性值。多次设置可以合并。在服务器启动之后，该方法就不能再调用了。
+
+## noDelay 属性
+
+设置为 `true` 后, TCP 连接发送数据时，会关闭 Nagle 合并算法，立即发往客户端连接。默认值即为 `true`。
+
+## isNoDelay 方法
+
+获取 `noDelay` 的属性值。
+
+## setNoDelay 方法
+
+设置 `noDelay` 的属性值。
+
+## on 方法
+
+用于设置 swoole 的服务事件。
+
+## addListener 方法
+
+添加新的监听地址，添加的地址必须为相同的类型。
+
+## listen 方法
+
+添加新的监听地址，并返回监听的服务端口对象，在该对象上进行设置后，可以实现不同类型服务的监听。
