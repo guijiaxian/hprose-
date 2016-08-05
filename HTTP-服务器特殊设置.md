@@ -1,3 +1,5 @@
+# 普通 HTTP 服务器
+
 ## crossDomain 属性
 
 该属性用于设置是否允许浏览器客户端跨域调用本服务。默认值为 `false`。当设置为 `true` 时，自动开启 CORS 跨域支持。当配合 `addAccessControlAllowOrigin` 和 `removeAccessControlAllowOrigin` 这两个方法时，还可以做细粒度的跨域设置。
@@ -41,3 +43,31 @@
 ## removeAccessControlAllowOrigin 方法
 
 删除允许跨域的地址。
+
+# Swoole 的 HTTP 服务器
+
+Swoole 的 HTTP 服务器出了包含普通服务器提供的上面那些设置和方法以外，还有以下几个特殊属性和方法：
+
+## server 属性
+
+只读属性，它是底层的 `swoole_http_server` 对象。你可以通过它来调用 swoole 服务器的功能。
+
+## settings 属性
+
+用于设置 swoole 服务器运行时的各项参数。具体有哪些设置，可参见 swoole 的官方文档，不过需要注意，有一些关于协议解析的选项参数不要设置。
+
+## set 方法
+
+用于设置 `settings` 的属性值。多次设置可以合并。在服务器启动之后，该方法就不能再调用了。
+
+## on 方法
+
+用于设置 swoole 的服务事件。
+
+## addListener 方法
+
+添加新的监听地址，添加的地址必须为相同的类型。
+
+## listen 方法
+
+添加新的监听地址，并返回监听的服务端口对象，在该对象上进行设置后，可以实现不同类型服务的监听。
