@@ -420,4 +420,4 @@ $server->start();
 
 不过如果我们使用的是 Swoole 的 Http 客户端，就不需要手动调用 `loop` 方法了。所以用异步调用，首选 swoole 客户端。
 
-如果用 swoole 异步客户端，$client->invoke` 方法的返回值是一个 `promise` 对象，也就是说，服务函数/方法其实也可以直接返回 `promise` 对象，异步服务不一定非要用 callback 方式。
+如果用 swoole 异步客户端，`$client->invoke` 方法的返回值是一个 `promise` 对象，也就是说，服务函数/方法其实也可以直接返回 `promise` 对象，异步服务不一定非要用 callback 方式。
