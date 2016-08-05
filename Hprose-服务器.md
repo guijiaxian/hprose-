@@ -445,3 +445,11 @@ public function addFunctions(array $funcs[, array $aliases = array()[, array $op
 当 `$funcs` 中的函数全都是具名函数时，`$aliases` 可以省略。
 
 `$options` 的选项值跟 `addFunction` 方法相同。
+
+## addAsyncFunctions 方法
+
+```php
+public function addAsyncFunctions(array $funcs[, array $aliases = array()[, array $options = array()]]);
+```
+该方法与 `addFunctions` 功能相同，但是 `async` 选项被默认设置为 `true`。也就是说，它是 `addFunctions` 发布异步方法的简写形式。
+
