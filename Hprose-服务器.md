@@ -453,3 +453,27 @@ public function addAsyncFunctions(array $funcs[, array $aliases = array()[, arra
 ```
 该方法与 `addFunctions` 功能相同，但是 `async` 选项被默认设置为 `true`。也就是说，它是 `addFunctions` 发布异步方法的简写形式。
 
+## addMethod 方法
+
+```php
+public function addMethod($method, $scope[, $alias = ''[, array $options = array()]]);
+```
+
+该方法跟 `addFunction` 类似，它的功能是添加方法。
+
+`$method` 是方法名，字符串类型。
+
+`$scope` 是 `$method` 所在的类或对象。如果 `$method` 是静态方法，那么 `$scope` 应为类名，如果 `$method` 是实例方法，那么 `$scope` 应为对象。不要搞混，切记，切记。
+
+`$alias` 是发布方法的别名，忽略时，跟 `$method` 的相同。
+
+`$options` 的选项值跟 `addFunction` 方法相同。
+
+## addAsyncMethod 方法
+
+```php
+public function addAsyncMethod($method, $scope[, $alias = ''[, array $options = array()]]);
+```
+
+该方法与 `addMethod` 功能相同，但是 `async` 选项被默认设置为 `true`。也就是说，它是 `addMethod` 发布异步方法的简写形式。
+
