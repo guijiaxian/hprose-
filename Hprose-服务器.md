@@ -373,3 +373,51 @@ $server->addFunction('hello', array("async" => true, "passContext" => true));
 $server->start();
 ```
 
+## addAsyncFunction 方法
+
+```php
+public function addAsyncFunction($func[, $alias = ''[, array $options = array()]]);
+```
+
+该方法与 `addFunction` 功能相同，但是 `async` 选项被默认设置为 `true`。也就是说，它是 `addFunction` 发布异步方法的简写形式。
+
+## addMissingFunction 方法
+
+```php
+public function addMissingFunction($func[, array $options = array()]);
+```
+
+该方法用于发布一个用于处理客户端调用缺失服务的函数。缺失服务是指服务器端并没有明确发布的远程函数/方法。例如：
+
+在服务器端没有发布 hello 函数时，在默认情况下，客户端调用该函数，服务器端会返回 `'Can't find this function hello().' 这样一个错误。
+
+但是如果服务器端通过本方法发布了一个用于处理客户端调用缺失服务的 `$func` 函数，则服务器端会返回这个 `$func` 函数的返回值。
+
+该方法还可以用于做代理服务器，例如：
+
+```php
+use Hprose\InvokeSettings;
+use Hprose\Http\Client;
+use Hprose\Socket\Server;
+use Hprose\ResultMode;
+
+$client = new Client("http://www.hprose.com/example/", false);
+$settings = new InvokeSettings(array("mode" => ResultMode::RawWithEndTag));
+
+$proxy = function($name, $args) use ($client, $settings) {
+    return $client->invoke($name, $args, $settings);
+};
+
+$server = new Server("tcp://0.0.0.0:1314");
+$server->debug = true;
+$server->addMissingFunction($proxy, array("mode" => ResultMode::RawWithEndTag));
+$server->start();
+```
+
+现在，客户端对这个服务器所发出的所有请求，都会通过 `$proxy` 函数转发到 `http://www.hprose.com/example/` 这个服务上，并把结果直接按照原始方式返回。
+
+另外，这我们用的是同步客户端，如果用异步客户端，需要在调用 `$client->invoke` 之后，手动执行 `$client->loop()` 来开始调用，然后再把结果返回。
+
+不过如果我们使用的是 Swoole 的 Http 客户端，就不需要手动调用 `loop` 方法了。所以用异步调用，首选 swoole 客户端。
+
+如果用 swoole 异步客户端，$client->invoke` 方法的返回值是一个 `promise` 对象，也就是说，服务函数/方法其实也可以直接返回 `promise` 对象，异步服务不一定非要用 callback 方式。
