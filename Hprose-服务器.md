@@ -347,7 +347,7 @@ $server->start();
 use Hprose\Socket\Server;
 
 function hello($name, $context) {
-    return "Hello " . $name . '! -- ' . stream_socket_get_name($context->socket, true);
+    return "Hello $name! -- " . stream_socket_get_name($context->socket, true);
 }
 
 $server = new Server("tcp://0.0.0.0:1314");
@@ -365,7 +365,7 @@ $server->start();
 use Hprose\Socket\Server;
 
 function hello($name, $context, $callback) {
-    $callback("Hello " . $name . '! -- ' . stream_socket_get_name($context->socket, true));
+    $callback("Hello $name! -- " . stream_socket_get_name($context->socket, true));
 }
 
 $server = new Server("tcp://0.0.0.0:1314");
