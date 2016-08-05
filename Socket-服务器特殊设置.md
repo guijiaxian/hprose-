@@ -97,3 +97,7 @@ function $server->clear($id);
 ```
 
 用于清除 `after` 和 `tick` 计时器。参数 `$id` 为 `after` 和 `tick` 方法的返回值。
+
+## addListener 方法
+
+用于添加新的监听地址。新增的监听地址必须为同一类型的。
