@@ -565,3 +565,15 @@ public function addAsyncClassMethods($class[, $scope = ''[, $aliasPrefix = ''[, 
 ```
 
 该方法与 `addClassMethods` 功能相同，但是 `async` 选项被默认设置为 `true`。也就是说，它是 `addClassMethods` 发布异步方法的简写形式。
+
+## add 方法
+
+上面如此之多的 `addXXX` 方法也许会把你搞晕，也许你不查阅本手册，都记不清该使用哪个方法来发布。
+
+没关系，`add` 方法就是用来简化上面这些 `addXXX` 方法的。
+
+`add` 方法不支持 `$options` 参数。其它参数你只要按照上面任何一个方法的参数来写，`add` 方法都可以自动根据参数的个数和类型判断该调用哪个方法进行发布，当你不需要设置 `$options` 参数时，它会大大简化你的工作量。
+
+## addAsync 方法
+
+该方法与 `add` 功能相同，但是 `async` 选项被默认设置为 `true`。也就是说，它是 `add` 发布异步方法的简写形式。
