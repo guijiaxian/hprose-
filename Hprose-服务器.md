@@ -507,3 +507,32 @@ public function addMethods($methods, $scope[, $aliases = array()[, array $option
 public function addAsyncMethods($methods, $scope[, $aliases = array()[, array $options = array()]]);
 ```
 
+## addInstanceMethods 方法
+
+```php
+public function addInstanceMethods($object[, $class = ''[, $aliasPrefix = ''[, array $options = array()]]]);
+```
+
+该方法用于发布 `$object` 对象上所在类上声明的所有 `public` 实例方法。
+
+当指定了 `$class` 参数时，将只发布 `$class` 这一层上声明的所有 `public` 实例方法。
+
+`$aliasPrefix` 是别名前缀，例如假设有一个 `$user` 对象，该对象上包含有 `add`，`del`，`update`，`query` 四个方法。那么当调用：
+
+```php
+$server->addInstanceMethods($user, '', 'user');
+```
+
+的方式来发布 `$user` 对象上的这四个方法后，等同于这样的发布：
+
+```php
+$server->addMethods(array('add'，'del'，'update'，'query'), $user,
+                    array('user_add'，'user_del'，'user_update'，'user_query'));
+```
+
+即在每个发布的方法名之前都添加了一个 `user_` 的前缀。注意这里前缀和方法名之间是使用 `_` 分隔的。
+
+当省略 `$aliasPrefix` 参数时，发布的方法名前不会增加任何前缀。
+
+最后的 `$options` 选项值跟 `addFunction` 方法相同。
+
