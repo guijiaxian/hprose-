@@ -71,3 +71,11 @@ Swoole 的 HTTP 服务器出了包含普通服务器提供的上面那些设置�
 ## listen 方法
 
 添加新的监听地址，并返回监听的服务端口对象，在该对象上进行设置后，可以实现不同类型服务的监听。
+
+# Swoole 的 WebSocket 服务器
+
+Swoole 的 WebSocket 服务器跟 Swoole 的 HTTP 服务器所包含的属性和方法是一样的。而且 Swoole 的 WebSocket 服务器是双料服务器，同时支持 Web Socket 通讯和 HTTP 通讯，所以不论是 WebSocket 客户端还是 HTTP 客户端都可以访问该服务器。
+
+## server 属性
+
+只读属性，它是底层的 `swoole_websocket_server` 对象。你可以通过它来调用 swoole 服务器的功能。
