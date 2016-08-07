@@ -122,7 +122,7 @@ function(string $name, array &$args, stdClass $context, Closure $next) {
 
 `$name` 是调用的远程函数/方法名。
 
-`$args` 是调用参数，可以是引用传递的数组（在用协程方式时不支持引用）。
+`$args` 是调用参数，引用传递的数组。
 
 `$context` 是调用上下文对象。
 
