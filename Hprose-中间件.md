@@ -439,3 +439,157 @@ string(12) "Hello world!"
 而 `addAfterFilterHandler` 添加的处理器所收到的 `$request` 都是经过过滤器处理以后的，但它当中使用 `$next` 方法返回的  `$response` 是未经过过滤器处理的。
 
 下面，我们在来看一个结合了压缩过滤器和输入输出缓存中间件的例子。
+
+## 压缩、缓存、计时
+
+**CompressFilter.php**
+```php
+use Hprose\Filter;
+
+class CompressFilter implements Filter {
+    public function inputFilter($data, stdClass $context) {
+        return gzdecode($data);
+    }
+    public function outputFilter($data, stdClass $context) {
+        return gzencode($data);
+    }
+}
+```
+
+上面的代码跟 Hprose 过滤器一章的压缩代码完全相同。
+
+**SizeHandler.php**
+```php
+class SizeHandler {
+    private $message;
+    public function __construct($message) {
+        $this->message = $message;
+    }
+    public function asynchandle($request, stdClass $context, Closure $next) {
+        error_log($this->message . ' request size: ' . strlen($request));
+        $response = (yield $next($request, $context));
+        error_log($this->message . ' response size: ' . strlen($response));
+    }
+    public function synchandle($request, stdClass $context, Closure $next) {
+        error_log($this->message . ' request size: ' . strlen($request));
+        $response = $next($request, $context);
+        error_log($this->message . ' response size: ' . strlen($response));
+        return $response;
+    }
+}
+```
+
+**StatHandler.php**
+```php
+class StatHandler {
+    private $message;
+    public function __construct($message) {
+        $this->message = $message;
+    }
+    public function asynchandle($request, stdClass $context, Closure $next) {
+        $start = microtime(true);
+        yield $next($request, $context);
+        $end = microtime(true);
+        error_log($this->message . ': It takes ' . ($end - $start) . 'ms.');
+    }
+    public function synchandle($request, stdClass $context, Closure $next) {
+        $start = microtime(true);
+        $response = $next($request, $context);
+        $end = microtime(true);
+        error_log($this->message . ': It takes ' . ($end - $start) . 'ms.');
+        return $response;
+    }
+}
+```
+
+这两个中间件，我们给它们分别编写了同步和异步处理程序。异步我们用的是协程方式，看上去跟同步一样简单。
+
+**CacheHandler2.php**
+```php
+class CacheHandler2 {
+    private $cache = array();
+    function handle($request, stdClass $context, Closure $next) {
+        if (isset($context->userdata->cache)) {
+            if (isset($this->cache[$request])) {
+                return $this->cache[$request];
+            }
+            $response = $next($request, $context);
+            $this->cache[$request] = $response;
+            return $response;
+        }
+        return $next($request, $context);
+    }
+}
+```
+
+缓存中间件因为不涉及到对结果的判断，所以同步和异步写法是一样的。
+
+**Server.php**
+```php
+use Hprose\Socket\Server;
+
+$server = new Server('tcp://0.0.0.0:1143/');
+$server->addFunction(function($value) { return $value; }, 'echo')
+       ->addBeforeFilterHandler(array(new StatHandler("BeforeFilter"), 'asynchandle'))
+       ->addBeforeFilterHandler(array(new SizeHandler("compressedr"), 'asynchandle'))
+       ->addFilter(new CompressFilter())
+       ->addAfterFilterHandler(array(new StatHandler("AfterFilter"), 'asynchandle'))
+       ->addAfterFilterHandler(array(new SizeHandler("Non compressed"), 'asynchandle'))
+       ->start();
+```
+
+在这里我们看到了发布方法，添加中间件，添加过滤器都支持链式调用。
+
+**Client.php**
+```php
+use Hprose\Client;
+use Hprose\InvokeSettings;
+
+$cacheSettings = new InvokeSettings(array("userdata" => array("cache" => true)));
+
+$client = Client::create('tcp://127.0.0.1:1143/', false);
+$client->addBeforeFilterHandler(array(new CacheHandler2(), 'handle'))
+       ->addBeforeFilterHandler(array(new StatHandler('BeforeFilter'), 'synchandle'))
+       ->addBeforeFilterHandler(array(new SizeHandler('Non compressed'), 'synchandle'))
+       ->addFilter(new CompressFilter())
+       ->addAfterFilterHandler(array(new StatHandler('AfterFilter'), 'synchandle'))
+       ->addAfterFilterHandler(array(new SizeHandler('compressed'), 'synchandle'));
+
+$value = range(0, 99999);
+var_dump(count($client->echo($value, $cacheSettings)));
+var_dump(count($client->echo($value, $cacheSettings)));
+```
+
+客户端添加过滤器和中间件也支持链式调用。
+
+分别启动服务器和客户端，就会看到如下输出：
+
+**服务器输出**
+>
+```
+compressedr request size: 216266
+Non compressed request size: 688893
+Non compressed response size: 688881
+AfterFilter: It takes 0.80839991569519ms.
+compressedr response size: 216245
+BeforeFilter: It takes 0.83422088623047ms.
+```
+>
+
+**客户端输出**
+>
+```
+Non compressed request size: 688893
+compressed request size: 216266
+compressed response size: 216245
+AfterFilter: It takes 0.83719491958618ms.
+Non compressed response size: 688881
+BeforeFilter: It takes 0.86235404014587ms.
+int(100000)
+int(100000)
+>
+```
+
+我们可以看到两次的执行结果都出来了，但是中间件的输出内容只有一次。原因就是第二次执行时，缓存中间件将缓存的结果直接返回了。因此后面所有的步骤就都略过了。
+
+通过这个例子，我们可以看出，将 Hprose 中间件和 Hprose 过滤器结合，可以实现非常强大的扩展功能。如果你有什么特殊的需求，直接使用 Hprose 无法实现的话，就考虑一下是否可以添加几个 Hprose 中间件和 Hprose 过滤器吧。
