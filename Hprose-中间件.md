@@ -112,7 +112,7 @@ Hprose 中间件的顺序执行是按照添加的前后顺序执行的，假设�
 调用中间件的形式为：
 
 ```php
-function(string $name, array &$args, stdClass $context, callable $next) {
+function(string $name, array &$args, stdClass $context, Closure $next) {
     ...
     $result = $next($name, $args, $context);
     ...
@@ -122,7 +122,7 @@ function(string $name, array &$args, stdClass $context, callable $next) {
 
 `$name` 是调用的远程函数/方法名。
 
-`$args` 是调用参数，引用传递的数组。
+`$args` 是调用参数，可以是引用传递的数组（在用协程方式时不支持引用）。
 
 `$context` 是调用上下文对象。
 
@@ -219,3 +219,22 @@ string(12) "Hello world!"
 
 下面，我们来把上面的例子翻译成一个只针对异步客户端和服务器的使用协程方式编写的日志中间件：
 
+**coLogHandler.php**
+```php
+use Hprose\Future;
+
+$coLogHandler = Future\wrap(function($name, array $args, stdClass $context, Closure $next) {
+    error_log("before invoke:");
+    error_log($name);
+    error_log(var_export($args, true));
+    $result = (yield $next($name, $args, $context));
+    error_log("after invoke:");
+    error_log(var_export($result, true));
+});
+```
+
+客户端和服务器的代码以及运行结果这里就省略了，如果你写的正确，运行结果跟上面的是一致的。
+
+这个例子看上去要简单清爽的多，在这个例子中，我们使用 `yield` 关键字调用了 `$next` 方法，因为后面没有再次调用 `yield`，所以这个返回值也是该协程的返回值。
+
+另外，如果你比较细心，你会发现参数 `$args` 的引用传递符我们去掉了，原因是采用这种方式时，不支持引用参数传递。否则，会报错。
