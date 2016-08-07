@@ -344,3 +344,29 @@ string(21) "Hello no cache world!"
 
 在这个例子中，我们用到了 `userdata` 设置项和 `$context->userdata`，通过 `userdata` 配合 Hprose 中间件，我们就可以实现自定义选项功能了。
 
+# 输入输出中间件
+
+输入输出中间件可以完全代替 Hprose 过滤器。使用输入输出中间件还是使用 Hprose 过滤器完全看开发者喜好。
+
+输入输出中间件的形式为：
+
+```php
+function(string $request, stdClass $context, Closure $next) {
+    ...
+    $result = $next($request, $context);
+    ...
+    return $result;
+}
+```
+
+`$request` 是原始请求数据，对于客户端来说它是输出数据，对于服务器端来说，它是输入数据。该数据的类型为 `string` 类型对象。
+
+`$context` 是调用上下文对象。
+
+`$next` 表示下一个中间件。通过调用 `$next` 将各个中间件串联起来。
+
+`$next` 的返回值 `$response` 是返回的响应数据。对于客户端来说，它是输入数据。对于服务器端来说，它是输出数据。跟调用中间一样，服务器和异步客户端返回的 `$response` 是一个 `promise` 对象，而同步客户端返回的是是一个 `string` 数据。
+
+## 跟踪调试
+
+下面我们来看一下 Hprose 过滤器中的跟踪调试的例子在这里如何实现。
