@@ -132,3 +132,83 @@ function(string $name, array &$args, stdClass $context, callable $next) {
 
 另外，对于服务器端来说，`$next` 的返回值 `$result` 总是 `promise` 对象。对于客户端来说，如果客户端是异步客户端，那么 `$next` 的返回值 `$result` 是 `promise` 对象，如果客户端是同步客户端，`$next` 的返回值 `$result` 是实际结果。
 
+## 跟踪调试
+
+我们来看一个例子：
+
+**LogHandler.php**
+```php
+use Hprose\Future;
+
+$logHandler = function($name, array &$args, stdClass $context, Closure $next) {
+    error_log("before invoke:");
+    error_log($name);
+    error_log(var_export($args, true));
+    $result = $next($name, $args, $context);
+    error_log("after invoke:");
+    if (Future\isFuture($result)) {
+        $result->then(function($result) {
+            error_log(var_export($result, true));
+        });
+    }
+    else {
+        error_log(var_export($result, true));
+    }
+    return $result;
+};
+```
+
+**Server.php**
+```php
+use Hprose\Socket\Server;
+
+function hello($name) {
+    return "Hello $name!";
+}
+
+$server = new Server('tcp://0.0.0.0:1143/');
+$server->addFunction('hello');
+$server->debug = true;
+$server->addInvokeHandler($logHandler);
+$server->start();
+```
+
+**Client.php**
+```php
+use Hprose\Client;
+
+$client = Client::create('tcp://127.0.0.1:1143/', false);
+$client->addInvokeHandler($logHandler);
+var_dump($client->hello("world"));
+```
+
+然后分别启动服务器和客户端，就会看到如下输出：
+
+**服务器输出**
+
+>
+```
+before invoke:
+hello
+array (
+  0 => 'world',
+)
+after invoke:
+'Hello world!'
+```
+>
+
+**客户端输出**
+
+>
+```
+before invoke:
+hello
+array (
+  0 => 'world',
+)
+after invoke:
+'Hello world!'
+string(12) "Hello world!"
+```
+>
