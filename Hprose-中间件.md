@@ -234,3 +234,5 @@ $coLogHandler = function($name, array &$args, stdClass $context, Closure $next) 
 客户端和服务器的代码以及运行结果这里就省略了，如果你写的正确，运行结果跟上面的是一致的。
 
 这个例子看上去要简单清爽的多，在这个例子中，我们使用 `yield` 关键字调用了 `$next` 方法，因为后面没有再次调用 `yield`，所以这个返回值也是该协程的返回值。
+
+注意，不要用 `Future\wrap` 来包装这个协程，包装之后，不支持引用参数传递。
