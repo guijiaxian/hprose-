@@ -216,6 +216,7 @@ int(100000)
 有时候，我们希望能够对调用执行时间做一个统计，对于客户端来说，也就是客户端调用发出前，到客户端收到调用结果的时间统计。对于服务器来说，就是收到客户端调用请求到要发出调用结果的这一段时间的统计。这个功能，通过过滤器也可以实现。
 
 **StatFilter.php**
+```php
 use Hprose\Filter;
 
 class StatFilter implements Filter {
