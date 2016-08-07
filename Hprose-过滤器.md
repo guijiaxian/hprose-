@@ -210,3 +210,73 @@ int(100000)
 在这个例子中，压缩我们使用了 PHP 内置的 gzip 算法，运行前需要确认你开启了这个扩展（一般默认就是开着的）。
 
 加密跟这个类似，这里就不再单独举加密的例子了。
+
+# 运行时间统计
+
+有时候，我们希望能够对调用执行时间做一个统计，对于客户端来说，也就是客户端调用发出前，到客户端收到调用结果的时间统计。对于服务器来说，就是收到客户端调用请求到要发出调用结果的这一段时间的统计。这个功能，通过过滤器也可以实现。
+
+**StatFilter.php**
+use Hprose\Filter;
+
+class StatFilter implements Filter {
+    private function stat(stdClass $context) {
+        if (isset($context->userdata->starttime)) {
+            $t = microtime(true) - $context->userdata->starttime;
+            error_log("It takes $t s.");
+        }
+        else {
+            $context->userdata->starttime = microtime(true);
+        }
+    }
+    public function inputFilter($data, stdClass $context) {
+        $this->stat($context);
+        return $data;
+    }
+    public function outputFilter($data, stdClass $context) {
+        $this->stat($context);
+        return $data;
+    }
+}
+```
+
+**Server.php**
+```php
+use Hprose\Socket\Server;
+
+$server = new Server('tcp://0.0.0.0:1143/');
+$server->addFilter(new StatFilter());
+$server->addFunction(function($value) {
+    return $value;
+}, 'echo');
+$server->start();
+```
+
+**Client.php**
+```php
+use Hprose\Client;
+
+$client = Client::create('tcp://127.0.0.1:1143/', false);
+$client->addFilter(new StatFilter());
+
+$value = range(0, 99999);
+var_dump(count($client->echo($value)));
+```
+
+然后分别启动服务器和客户端，就会看到如下输出：
+
+**服务器输出**
+>
+```
+It takes 0.78576111793518 s.
+```
+>
+
+**客户端输出**
+>
+```
+It takes 0.79311609268188 ms.
+int(100000)
+```
+>
+
+最后让我们把这个这个运行时间统计的例子跟上面的压缩例子结合一下，可以看到更详细的时间统计。
