@@ -75,8 +75,6 @@ class LogFilter implements Filter {
 
 **Server.php**
 ```php
-require_once 'LogFilter.php';
-
 use Hprose\Socket\Server;
 
 function hello($name) {
@@ -91,14 +89,14 @@ $server->start();
 
 **Client.php**
 ```php
-require_once 'LogFilter.php';
-
 use Hprose\Client;
 
 $client = Client::create('tcp://127.0.0.1:1143/', false);
 $client->addFilter(new LogFilter());
 var_dump($client->hello("world"));
 ```
+
+上面的服务器和客户端代码我们省略了包含路径。请自行脑补，或者直接参见 [[examples 目录|https://github.com/hprose/hprose-php/tree/master/examples/src]] 里面的例子。
 
 然后分别启动服务器和客户端，就会看到如下输出：
 
@@ -118,3 +116,8 @@ Rs12"Hello world!"z
 string(12) "Hello world!"
 ```
 >
+
+# 压缩传输
+
+上面的例子，我们只使用了一个过滤器。在本例中，我们展示多个过滤器组合使用的效果。
+
