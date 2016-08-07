@@ -280,6 +280,8 @@ int(100000)
 
 **Server.php**
 ```php
+use Hprose\Socket\Server;
+
 $server = new Server('tcp://0.0.0.0:1143/');
 $server->addFilter(new StatFilter())
        ->addFilter(new SizeFilter('Non compressed'))
