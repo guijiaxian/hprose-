@@ -96,7 +96,7 @@ $client->addFilter(new LogFilter());
 var_dump($client->hello("world"));
 ```
 
-上面的服务器和客户端代码我们省略了包含路径。请自行脑补，或者直接参见 [[examples 目录|https://github.com/hprose/hprose-php/tree/master/examples/src]] 里面的例子。
+上面的服务器和客户端代码我们省略了包含路径。请自行脑补，或者直接参见 [[examples 目录|https://github.com/hprose/hprose-php/tree/master/examples/src]]里面的例子。
 
 然后分别启动服务器和客户端，就会看到如下输出：
 
@@ -117,7 +117,96 @@ string(12) "Hello world!"
 ```
 >
 
+上面输出操作我们用了 `error_log` 函数，并不是因为我们要输出的内容是错误信息，而是因为 Hprose 内部在服务器端过滤了 `echo`、`var_dump `这些用 `ob_xxx` 操作可以过滤掉的输出信息，因为不过滤这些信息，一旦服务器有输出操作，就会造成客户端无法正常运行。所以，我们这里用 `error_log` 函数来进行输出。你也可以换成别的你喜欢的方式，只要不会被 `ob_xxx` 操作过滤掉就可以了。下面的例子我们同样使用这个函数来作为输出。
+
 # 压缩传输
 
 上面的例子，我们只使用了一个过滤器。在本例中，我们展示多个过滤器组合使用的效果。
 
+**CompressFilter.php**
+```php
+use Hprose\Filter;
+
+class CompressFilter implements Filter {
+    public function inputFilter($data, stdClass $context) {
+        return gzdecode($data);
+    }
+    public function outputFilter($data, stdClass $context) {
+        return gzencode($data);
+    }
+}
+```
+
+**SizeFilter.php**
+```php
+use Hprose\Filter;
+
+class SizeFilter implements Filter {
+    private $message;
+    public function __construct($message) {
+        $this->message = $message;
+    }
+    public function inputFilter($data, stdClass $context) {
+        error_log($this->message . ' input size: ' . strlen($data));
+        return $data;
+    }
+    public function outputFilter($data, stdClass $context) {
+        error_log($this->message . ' output size: ' . strlen($data));
+        return $data;
+    }
+}
+```
+
+**Server.php**
+```php
+use Hprose\Socket\Server;
+
+$server = new Server('tcp://0.0.0.0:1143/');
+$server->addFilter(new SizeFilter('Non compressed'));
+$server->addFilter(new CompressFilter());
+$server->addFilter(new SizeFilter('Compressed'));
+$server->addFunction(function($value) {
+    return $value;
+}, 'echo');
+$server->start();
+```
+
+**Client.php**
+```php
+use Hprose\Client;
+
+$client = Client::create('tcp://127.0.0.1:1143/', false);
+$client->addFilter(new SizeFilter('Non compressed'));
+$client->addFilter(new CompressFilter());
+$client->addFilter(new SizeFilter('Compressed'));
+
+$value = range(0, 99999);
+var_dump(count($client->echo($value)));
+```
+
+然后分别启动服务器和客户端，就会看到如下输出：
+
+**服务器输出**
+>
+```
+Compressed input size: 216266
+Non compressed input size: 688893
+Non compressed output size: 688881
+Compressed output size: 216245
+```
+>
+
+客户端输出
+>
+```
+Non compressed output size: 688893
+Compressed output size: 216266
+Compressed input size: 216245
+Non compressed input size: 688881
+int(100000)
+```
+>
+
+在这个例子中，压缩我们使用了 PHP 内置的 gzip 算法，运行前需要确认你开启了这个扩展（一般默认就是开着的）。
+
+加密跟这个类似，这里就不再单独举加密的例子了。
