@@ -357,3 +357,122 @@ int(100000)
 第二个 `0.83359313011169 s` 是第一个阶段用时 + 从客户端调用发出到服务器端返回数据的总时间。
 
 第三个 `0.83492517471313 s` 是前两个阶段用时 + 解压缩输入数据的时间。
+
+# 协议转换
+
+Hprose 过滤器的功能不止于此，如果你对 Hprose 协议本身有所了解的话，你还可以直接在过滤器中对输入输出数据进行解析转换。
+
+在 Hprose for PHP 中已经提供了现成的 JSONRPC、XMLRPC 的过滤器。使用它，你可以将 Hprose 服务器变身为 Hprose + JSONRPC + XMLRPC 三料服务器。也可以将 Hprose 客户端变身为 JSONRPC 客户端或 XMLRPC 客户端。
+
+**Hprose + JSONRPC + XMLRPC 三料服务器**
+```php
+use Hprose\Socket\Server;
+use Hprose\Filter\JSONRPC;
+use Hprose\Filter\XMLRPC;
+
+function hello($name) {
+    return "Hello $name!";
+}
+
+$server = new Server('tcp://0.0.0.0:1143/');
+$server->addFunction('hello');
+$server->addFilter(new JSONRPC\ServiceFilter());
+$server->addFilter(new XMLRPC\ServiceFilter());
+$server->addFilter(new LogFilter());
+$server->start();
+```
+
+实现一个三料服务器就这么简单，只需要添加一个协议转换的 `ServiceFilter` 实例对象就可以了。而且这个服务器可以同时接收 Hprose 和 JSONRPC、XMLRPC 三种请求。
+
+**JSONRPC 客户端**
+```php
+use Hprose\Client;
+use Hprose\Filter\JSONRPC;
+
+$client = Client::create('tcp://127.0.0.1:1143/', false);
+$client->addFilter(new JSONRPC\ClientFilter());
+$client->addFilter(new LogFilter());
+
+var_dump($client->hello("world"));
+```
+
+**XMLRPC 客户端**
+```php
+use Hprose\Client;
+use Hprose\Filter\XMLRPC;
+
+$client = Client::create('tcp://127.0.0.1:1143/', false);
+$client->addFilter(new XMLRPC\ClientFilter());
+$client->addFilter(new LogFilter());
+
+var_dump($client->hello("world"));
+
+```
+
+客户端也是同样的简单，只需要添加一个协议转换的 `ClientFilter` 实例对象，Hprose 客户端就马上变身为对应协议的客户端了。不过需要注意一点，跟服务器不同，添加了 `JSONRPC\ClientFilter` 的客户端，是一个纯 JSONRPC 客户端，这个客户端只能跟 JSONRPC 服务器通讯，不能再跟纯 Hprose 服务器通讯了，但是跟 Hprose + JSONRPC 的双料服务器通讯是没问题的。
+
+上面的程序我们先执行服务器，然后分别执行两个客户端，结果为：
+
+服务器输出
+
+```xml
+{"jsonrpc":"2.0","method":"hello","params":["world"],"id":1}
+{"id":1,"jsonrpc":"2.0","result":"Hello world!"}
+<?xml version="1.0" encoding="iso-8859-1"?>
+<methodCall>
+<methodName>hello</methodName>
+<params>
+ <param>
+  <value>
+   <string>world</string>
+  </value>
+ </param>
+</params>
+</methodCall>
+
+<?xml version="1.0" encoding="utf-8"?>
+<params>
+<param>
+ <value>
+  <string>Hello world!</string>
+ </value>
+</param>
+</params>
+```
+
+JSONRPC 客户端输出
+
+```json
+{"jsonrpc":"2.0","method":"hello","params":["world"],"id":1}
+{"id":1,"jsonrpc":"2.0","result":"Hello world!"}
+string(12) "Hello world!"
+```
+
+XMLRPC 客户端输出
+
+```xml
+<?xml version="1.0" encoding="iso-8859-1"?>
+<methodCall>
+<methodName>hello</methodName>
+<params>
+ <param>
+  <value>
+   <string>world</string>
+  </value>
+ </param>
+</params>
+</methodCall>
+
+<?xml version="1.0" encoding="utf-8"?>
+<params>
+<param>
+ <value>
+  <string>Hello world!</string>
+ </value>
+</param>
+</params>
+
+string(12) "Hello world!"
+```
+
+Hprose 过滤器的功能很强大，除了上面这些用法之外，你还可以结合服务器事件来实现更为复杂的功能。不过这里就不再继续举例说明了。
