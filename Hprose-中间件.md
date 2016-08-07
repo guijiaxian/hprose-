@@ -236,3 +236,111 @@ $coLogHandler = function($name, array &$args, stdClass $context, Closure $next) 
 这个例子看上去要简单清爽的多，在这个例子中，我们使用 `yield` 关键字调用了 `$next` 方法，因为后面没有再次调用 `yield`，所以这个返回值也是该协程的返回值。
 
 注意，不要用 `Future\wrap` 来包装这个协程，包装之后，不支持引用参数传递。
+
+## 缓存调用
+
+我们再来看一个实现缓存调用的例子，在这个例子中我们也使用了上面的日志中间件，用来观察我们的缓存是否真的有效。
+
+**CacheHandler.php**
+```php
+class CacheHandler {
+    private $cache = array();
+    function handle($name, array &$args, stdClass $context, Closure $next) {
+        if (isset($context->userdata->cache)) {
+            $key = hprose_serialize($args);
+            if (isset($this->cache[$name])) {
+                if (isset($this->cache[$name][$key])) {
+                    return $this->cache[$name][$key];
+                }
+            }
+            else {
+                $this->cache[$name] = array();
+            }
+            $result = $next($name, $args, $context);
+            $this->cache[$name][$key] = $result;
+            return $result;
+        }
+        return $next($name, $args, $context);
+    }
+}
+```
+
+**Client.php**
+```php
+use Hprose\Client;
+use Hprose\InvokeSettings;
+
+$cacheSettings = new InvokeSettings(array("userdata" => array("cache" => true)));
+$client = Client::create('tcp://127.0.0.1:1143/', false);
+$client->addInvokeHandler(array(new CacheHandler(), 'handle'));
+$client->addInvokeHandler($logHandler);
+var_dump($client->hello("cache world", $cacheSettings));
+var_dump($client->hello("cache world", $cacheSettings));
+var_dump($client->hello("no cache world"));
+var_dump($client->hello("no cache world"));
+```
+
+我们的服务器仍然使用上面例子中的服务器。在确保服务器已启动的情况下，我们运行客户端，可以看到它们分别输出以下结果：
+
+**服务器输出**
+>
+```
+before invoke:
+hello
+array (
+  0 => 'cache world',
+)
+after invoke:
+'Hello cache world!'
+before invoke:
+hello
+array (
+  0 => 'no cache world',
+)
+after invoke:
+'Hello no cache world!'
+before invoke:
+hello
+array (
+  0 => 'no cache world',
+)
+after invoke:
+'Hello no cache world!'
+```
+>
+
+**客户端输出**
+>
+```
+before invoke:
+hello
+array (
+  0 => 'cache world',
+)
+after invoke:
+'Hello cache world!'
+string(18) "Hello cache world!"
+string(18) "Hello cache world!"
+before invoke:
+hello
+array (
+  0 => 'no cache world',
+)
+after invoke:
+'Hello no cache world!'
+string(21) "Hello no cache world!"
+before invoke:
+hello
+array (
+  0 => 'no cache world',
+)
+after invoke:
+'Hello no cache world!'
+string(21) "Hello no cache world!"
+```
+>
+
+我们看到输出结果中 `'cache world'` 的日志只被打印了一次，而 `'no cache world'` 的日志被打印了两次。这说明 `'cache world'` 确实被缓存了。
+
+在这个例子中，我们用到了 `userdata` 设置项和 `$context->userdata`，通过 `userdata` 配合 Hprose 中间件，我们就可以实现自定义选项功能了。
+
