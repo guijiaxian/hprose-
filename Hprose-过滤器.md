@@ -82,9 +82,9 @@ function hello($name) {
 }
 
 $server = new Server('tcp://0.0.0.0:1143/');
-$server->addFunction('hello');
-$server->addFilter(new LogFilter());
-$server->start();
+$server->addFunction('hello')
+       ->addFilter(new LogFilter())
+       ->start();
 ```
 
 **Client.php**
@@ -162,13 +162,11 @@ class SizeFilter implements Filter {
 use Hprose\Socket\Server;
 
 $server = new Server('tcp://0.0.0.0:1143/');
-$server->addFilter(new SizeFilter('Non compressed'));
-$server->addFilter(new CompressFilter());
-$server->addFilter(new SizeFilter('Compressed'));
-$server->addFunction(function($value) {
-    return $value;
-}, 'echo');
-$server->start();
+$server->addFilter(new SizeFilter('Non compressed'))
+       ->addFilter(new CompressFilter())
+       ->addFilter(new SizeFilter('Compressed'))
+       ->addFunction(function($value) { return $value; }, 'echo')
+       ->start();
 ```
 
 **Client.php**
@@ -176,9 +174,9 @@ $server->start();
 use Hprose\Client;
 
 $client = Client::create('tcp://127.0.0.1:1143/', false);
-$client->addFilter(new SizeFilter('Non compressed'));
-$client->addFilter(new CompressFilter());
-$client->addFilter(new SizeFilter('Compressed'));
+$client->addFilter(new SizeFilter('Non compressed'))
+       ->addFilter(new CompressFilter())
+       ->addFilter(new SizeFilter('Compressed'));
 
 $value = range(0, 99999);
 var_dump(count($client->echo($value)));
@@ -245,11 +243,9 @@ class StatFilter implements Filter {
 use Hprose\Socket\Server;
 
 $server = new Server('tcp://0.0.0.0:1143/');
-$server->addFilter(new StatFilter());
-$server->addFunction(function($value) {
-    return $value;
-}, 'echo');
-$server->start();
+$server->addFilter(new StatFilter())
+       ->addFunction(function($value) { return $value; }, 'echo')
+       ->start();
 ```
 
 **Client.php**
@@ -285,15 +281,13 @@ int(100000)
 **Server.php**
 ```php
 $server = new Server('tcp://0.0.0.0:1143/');
-$server->addFilter(new StatFilter());
-$server->addFilter(new SizeFilter('Non compressed'));
-$server->addFilter(new CompressFilter());
-$server->addFilter(new SizeFilter('Compressed'));
-$server->addFilter(new StatFilter());
-$server->addFunction(function($value) {
-    return $value;
-}, 'echo');
-$server->start();
+$server->addFilter(new StatFilter())
+       ->addFilter(new SizeFilter('Non compressed'))
+       ->addFilter(new CompressFilter())
+       ->addFilter(new SizeFilter('Compressed'))
+       ->addFilter(new StatFilter());
+       ->addFunction(function($value) { return $value; }, 'echo')
+       ->start();
 ```
 
 **Client.php**
@@ -301,11 +295,11 @@ $server->start();
 use Hprose\Client;
 
 $client = Client::create('tcp://127.0.0.1:1143/', false);
-$client->addFilter(new StatFilter());
-$client->addFilter(new SizeFilter('Non compressed'));
-$client->addFilter(new CompressFilter());
-$client->addFilter(new SizeFilter('Compressed'));
-$client->addFilter(new StatFilter());
+$client->addFilter(new StatFilter())
+       ->addFilter(new SizeFilter('Non compressed'))
+       ->addFilter(new CompressFilter())
+       ->addFilter(new SizeFilter('Compressed'))
+       ->addFilter(new StatFilter());
 
 $value = range(0, 99999);
 var_dump(count($client->echo($value)));
@@ -375,11 +369,11 @@ function hello($name) {
 }
 
 $server = new Server('tcp://0.0.0.0:1143/');
-$server->addFunction('hello');
-$server->addFilter(new JSONRPC\ServiceFilter());
-$server->addFilter(new XMLRPC\ServiceFilter());
-$server->addFilter(new LogFilter());
-$server->start();
+$server->addFunction('hello')
+       ->addFilter(new JSONRPC\ServiceFilter())
+       ->addFilter(new XMLRPC\ServiceFilter())
+       ->addFilter(new LogFilter())
+       ->start();
 ```
 
 实现一个三料服务器就这么简单，只需要添加一个协议转换的 `ServiceFilter` 实例对象就可以了。而且这个服务器可以同时接收 Hprose 和 JSONRPC、XMLRPC 三种请求。
@@ -390,8 +384,8 @@ use Hprose\Client;
 use Hprose\Filter\JSONRPC;
 
 $client = Client::create('tcp://127.0.0.1:1143/', false);
-$client->addFilter(new JSONRPC\ClientFilter());
-$client->addFilter(new LogFilter());
+$client->addFilter(new JSONRPC\ClientFilter())
+       ->addFilter(new LogFilter());
 
 var_dump($client->hello("world"));
 ```
@@ -402,8 +396,8 @@ use Hprose\Client;
 use Hprose\Filter\XMLRPC;
 
 $client = Client::create('tcp://127.0.0.1:1143/', false);
-$client->addFilter(new XMLRPC\ClientFilter());
-$client->addFilter(new LogFilter());
+$client->addFilter(new XMLRPC\ClientFilter())
+       ->addFilter(new LogFilter());
 
 var_dump($client->hello("world"));
 
