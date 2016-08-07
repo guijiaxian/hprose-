@@ -221,20 +221,16 @@ string(12) "Hello world!"
 
 **coLogHandler.php**
 ```php
-use Hprose\Future;
-
-$coLogHandler = Future\wrap(function($name, array $args, stdClass $context, Closure $next) {
+$coLogHandler = function($name, array &$args, stdClass $context, Closure $next) {
     error_log("before invoke:");
     error_log($name);
     error_log(var_export($args, true));
     $result = (yield $next($name, $args, $context));
     error_log("after invoke:");
     error_log(var_export($result, true));
-});
+};
 ```
 
 客户端和服务器的代码以及运行结果这里就省略了，如果你写的正确，运行结果跟上面的是一致的。
 
 这个例子看上去要简单清爽的多，在这个例子中，我们使用 `yield` 关键字调用了 `$next` 方法，因为后面没有再次调用 `yield`，所以这个返回值也是该协程的返回值。
-
-另外，如果你比较细心，你会发现参数 `$args` 的引用传递符我们去掉了，原因是采用这种方式时，不支持引用参数传递。否则，会报错。
