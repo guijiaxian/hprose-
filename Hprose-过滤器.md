@@ -281,3 +281,79 @@ int(100000)
 >
 
 最后让我们把这个这个运行时间统计的例子跟上面的压缩例子结合一下，可以看到更详细的时间统计。
+
+**Server.php**
+```php
+$server = new Server('tcp://0.0.0.0:1143/');
+$server->addFilter(new StatFilter());
+$server->addFilter(new SizeFilter('Non compressed'));
+$server->addFilter(new CompressFilter());
+$server->addFilter(new SizeFilter('Compressed'));
+$server->addFilter(new StatFilter());
+$server->addFunction(function($value) {
+    return $value;
+}, 'echo');
+$server->start();
+```
+
+**Client.php**
+```php
+use Hprose\Client;
+
+$client = Client::create('tcp://127.0.0.1:1143/', false);
+$client->addFilter(new StatFilter());
+$client->addFilter(new SizeFilter('Non compressed'));
+$client->addFilter(new CompressFilter());
+$client->addFilter(new SizeFilter('Compressed'));
+$client->addFilter(new StatFilter());
+
+$value = range(0, 99999);
+var_dump(count($client->echo($value)));
+```
+
+然后分别启动服务器和客户端，就会看到如下输出：
+
+**服务器输出**
+>
+```
+Compressed input size: 216266
+Non compressed input size: 688893
+It takes 0.0013928413391113 s.
+It takes 0.78547883033752 s.
+Non compressed output size: 688881
+Compressed output size: 216245
+It takes 0.80714201927185 s.
+```
+>
+
+**客户端输出**
+>
+```
+Non compressed output size: 688893
+Compressed output size: 216266
+It takes 0.023460149765015 s.
+It takes 0.83359313011169 s.
+Compressed input size: 216245
+Non compressed input size: 688881
+It takes 0.83492517471313 s.
+int(100000)
+```
+>
+
+在这里，我们可以看到客户端和服务器端分别输出了三段用时。
+
+服务器端输出：
+
+第一个 `0.0013928413391113 s` 是解压缩输入数据的时间。
+
+第二个 `0.78547883033752 s` 是第一个阶段用时 + 反序列化 + 调用 + 序列化的总时间。
+
+第三个 `0.80714201927185 s` 是前两个阶段用时 + 压缩输出数据的时间。
+
+客户端输出：
+
+第一个 `0.023460149765015 s` 是压缩输出数据的时间。
+
+第二个 `0.83359313011169 s` 是第一个阶段用时 + 从客户端调用发出到服务器端返回数据的总时间。
+
+第三个 `0.83492517471313 s` 是前两个阶段用时 + 解压缩输入数据的时间。
