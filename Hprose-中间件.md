@@ -486,23 +486,46 @@ class StatHandler {
     public function __construct($message) {
         $this->message = $message;
     }
-    public function asynchandle($request, stdClass $context, Closure $next) {
+    public function asynchandle($name, array &$args, stdClass $context, Closure $next) {
         $start = microtime(true);
-        yield $next($request, $context);
+        yield $next($name, $args, $context);
         $end = microtime(true);
-        error_log($this->message . ': It takes ' . ($end - $start) . 'ms.');
+        error_log($this->message . ': It takes ' . ($end - $start) . ' s.');
     }
-    public function synchandle($request, stdClass $context, Closure $next) {
+    public function synchandle($name, array &$args, stdClass $context, Closure $next) {
         $start = microtime(true);
-        $response = $next($request, $context);
+        $response = $next($name, $args, $context);
         $end = microtime(true);
-        error_log($this->message . ': It takes ' . ($end - $start) . 'ms.');
+        error_log($this->message . ': It takes ' . ($end - $start) . ' s.');
         return $response;
     }
 }
 ```
 
-这两个中间件，我们给它们分别编写了同步和异步处理程序。异步我们用的是协程方式，看上去跟同步一样简单。
+**StatHandler2.php**
+```php
+class StatHandler2 {
+    private $message;
+    public function __construct($message) {
+        $this->message = $message;
+    }
+    public function asynchandle($request, stdClass $context, Closure $next) {
+        $start = microtime(true);
+        yield $next($request, $context);
+        $end = microtime(true);
+        error_log($this->message . ': It takes ' . ($end - $start) . ' s.');
+    }
+    public function synchandle($request, stdClass $context, Closure $next) {
+        $start = microtime(true);
+        $response = $next($request, $context);
+        $end = microtime(true);
+        error_log($this->message . ': It takes ' . ($end - $start) . ' s.');
+        return $response;
+    }
+}
+```
+
+这三个中间件，我们给它们分别编写了同步和异步处理程序。异步我们用的是协程方式，看上去跟同步一样简单。
 
 **CacheHandler2.php**
 ```php
@@ -530,11 +553,12 @@ use Hprose\Socket\Server;
 
 $server = new Server('tcp://0.0.0.0:1143/');
 $server->addFunction(function($value) { return $value; }, 'echo')
-       ->addBeforeFilterHandler(array(new StatHandler("BeforeFilter"), 'asynchandle'))
+       ->addBeforeFilterHandler(array(new StatHandler2("BeforeFilter"), 'asynchandle'))
        ->addBeforeFilterHandler(array(new SizeHandler("compressedr"), 'asynchandle'))
        ->addFilter(new CompressFilter())
-       ->addAfterFilterHandler(array(new StatHandler("AfterFilter"), 'asynchandle'))
+       ->addAfterFilterHandler(array(new StatHandler2("AfterFilter"), 'asynchandle'))
        ->addAfterFilterHandler(array(new SizeHandler("Non compressed"), 'asynchandle'))
+       ->addInvokeHandler(array(new StatHandler("Invoke"), 'asynchandle'))
        ->start();
 ```
 
@@ -549,11 +573,12 @@ $cacheSettings = new InvokeSettings(array("userdata" => array("cache" => true)))
 
 $client = Client::create('tcp://127.0.0.1:1143/', false);
 $client->addBeforeFilterHandler(array(new CacheHandler2(), 'handle'))
-       ->addBeforeFilterHandler(array(new StatHandler('BeforeFilter'), 'synchandle'))
+       ->addBeforeFilterHandler(array(new StatHandler2('BeforeFilter'), 'synchandle'))
        ->addBeforeFilterHandler(array(new SizeHandler('Non compressed'), 'synchandle'))
        ->addFilter(new CompressFilter())
-       ->addAfterFilterHandler(array(new StatHandler('AfterFilter'), 'synchandle'))
-       ->addAfterFilterHandler(array(new SizeHandler('compressed'), 'synchandle'));
+       ->addAfterFilterHandler(array(new StatHandler2('AfterFilter'), 'synchandle'))
+       ->addAfterFilterHandler(array(new SizeHandler('compressed'), 'synchandle'))
+       ->addInvokeHandler(array(new StatHandler("Invoke"), 'synchandle'));
 
 $value = range(0, 99999);
 var_dump(count($client->echo($value, $cacheSettings)));
@@ -569,10 +594,11 @@ var_dump(count($client->echo($value, $cacheSettings)));
 ```
 compressedr request size: 216266
 Non compressed request size: 688893
+Invoke: It takes 0.0062549114227295 s.
 Non compressed response size: 688881
-AfterFilter: It takes 0.80839991569519ms.
+AfterFilter: It takes 0.039386034011841 s.
 compressedr response size: 216245
-BeforeFilter: It takes 0.83422088623047ms.
+BeforeFilter: It takes 0.066082954406738 s.
 ```
 >
 
@@ -582,10 +608,12 @@ BeforeFilter: It takes 0.83422088623047ms.
 Non compressed request size: 688893
 compressed request size: 216266
 compressed response size: 216245
-AfterFilter: It takes 0.83719491958618ms.
+AfterFilter: It takes 0.068840026855469 s.
 Non compressed response size: 688881
-BeforeFilter: It takes 0.86235404014587ms.
+BeforeFilter: It takes 0.093698024749756 s.
+Invoke: It takes 0.10785388946533 s.
 int(100000)
+Invoke: It takes 0.012754201889038 s.
 int(100000)
 >
 ```
