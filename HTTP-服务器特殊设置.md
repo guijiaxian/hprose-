@@ -14,7 +14,7 @@
 
 ## p3p 属性
 
-该属性用于设置是否允许 IE 浏览器跨域设置 Cookie。默认为 `true`。
+该属性用于设置是否允许 IE 浏览器跨域设置 Cookie。默认为 `false`。
 
 ## isP3PEnabled 方法
 
