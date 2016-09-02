@@ -78,7 +78,7 @@ function($name, &$args, $byref, &$result, \stdClass $context) { ... }
 function(&$error, \stdClass $context) { ... }
 ```
 
-如果在该事件中抛出异常、返回错误对象、或者返回一个失败（`rejected`）状态的 `promise` 对象。则该错误会替代原来的错误信息返回给客户端。
+如果在该事件中抛出异常、返回错误对象。则该错误会替代原来的错误信息返回给客户端。
 
 $error 参数可以声明为引用参数，在事件中可以对 $error 进行修改。
 
