@@ -180,19 +180,33 @@ unix:<path>
 unix:/tmp/my.sock
 ```
 
-# 属性
+# 事件
 
-## onError 属性
+## onError 事件
 
-该属性为 `callable` 类型，默认值为 `NULL`。
+该事件为 `callable` 类型，默认值为 `NULL`。
 
-当客户端采用回调方式进行调用时，并且回调函数没有参数，如果发生异常，该属性会被调用。回调函数格式为：
+当客户端采用回调方式进行调用时，并且回调函数没有参数，如果发生异常，该事件会被调用。该事件的回调函数格式为：
 
 ```
 function onError($name, $e);
 ```
 
-$name 是字符串类型，$e 在 PHP 5 中 为 Exception 类型或它的子类型对象，在 PHP 7 中是 Throwable 接口的实现类对象。
+`$name` 是字符串类型，`$e` 在 PHP 5 中 为 `Exception` 类型或它的子类型对象，在 PHP 7 中是 `Throwable` 接口的实现类对象。
+
+## onFailswitch 事件
+
+该属性为 `callable` 类型，默认值为 `NULL`。
+
+当调用的 `failswitch` 属性设置为 `true` 时，如果在调用中出现网络错误，进行服务器切换时，该事件会被触发。该事件的回调函数格式为：
+
+```
+function onFailswitch($client);
+```
+
+`$client` 即客户端对象。
+
+# 属性
 
 ## uri 属性
 
@@ -213,6 +227,10 @@ $name 是字符串类型，$e 在 PHP 5 中 为 Exception 类型或它的子类�
 ## failswitch 属性
 
 布尔类型。默认值为 `false`。表示当前客户端在因网络原因调用失败时是否自动切换服务地址。当客户端服务地址仅设置一个时，不管该属性值为何，都不会切换地址。
+
+## failround 属性
+
+整数类型，只读属性。初始值为 `0`。当调用中发生服务地址切换时，如果服务列表中所有的服务地址都切换过一遍之后，该属性值会加 `1`。你可以根据该属性来决定是否更新服务列表。更新服务列表可以使用 `useService` 方法。
 
 ## idempotent 属性
 
