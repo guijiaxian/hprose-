@@ -292,6 +292,10 @@ function onFailswitch($client);
 
 设置 failswitch 属性值。
 
+## getFailround 方法
+
+获取 failround 属性值。
+
 ## isByref 方法
 
 获取 byref 属性值。
