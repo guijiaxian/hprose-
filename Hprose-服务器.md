@@ -577,3 +577,7 @@ public function addAsyncClassMethods($class[, $scope = ''[, $aliasPrefix = ''[, 
 ## addAsync 方法
 
 该方法与 `add` 功能相同，但是 `async` 选项被默认设置为 `true`。也就是说，它是 `add` 发布异步方法的简写形式。
+
+## remove 方法
+
+该方法与 `add` 功能相反。使用该方法可以移除已经发布的函数，方法或者推送主题。该方法的参数为发布的远程方法的别名。注意：该别名是大小写敏感的。
