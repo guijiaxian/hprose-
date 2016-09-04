@@ -39,14 +39,14 @@ WebSocket 客户端  |        :x:         | :white_check_mark:
 创建方式如下：
 
 ```php
-$client = new \Hprose\Http\Client([$uris = null[, $async = true]]);
+$client = new \Hprose\Http\Client([$uriList = null[, $async = true]]);
 ```
 
 `[]` 内的参数表示可选参数。
 
 当两个参数都省略时，创建的客户端是未初始化的异步客户端，后面需要使用 `useService` 方法进行初始化，这是后话，暂且不表。
 
-第 1 个参数 `$uris` 是服务器地址，该服务器地址可以是单个的地址字符串，也可以是由多个地址字符串组成的数组。当该参数为多个地址字符串组成的数组时，客户端会从这些地址当中随机选择一个作为服务地址。因此需要保证这些地址发布的都是完全相同的服务。
+第 1 个参数 `$uriList` 是服务器地址，该服务器地址可以是单个的地址字符串，也可以是由多个地址字符串组成的数组。当该参数为多个地址字符串组成的数组时，客户端会从这些地址当中随机选择一个作为服务地址。因此需要保证这些地址发布的都是完全相同的服务。
 
 第 2 个参数 `$async` 表示是否是异步客户端，在 Hprose 2.0 for PHP 中，默认创建的都是异步客户端，这是因为 Swoole 客户端只支持异步，为了可以方便的在普通客户端和 Swoole 客户端之间切换，所以默认设置为异步。异步客户端在进行远程调用时，返回值为一个 `promise` 对象。而同步客户端在进行远程调用时，返回值为实际返回值（或者抛出异常）。客户端创建之后，该类型不能被更改。
 
@@ -89,10 +89,10 @@ $client = new \Hprose\Swoole\Client('ws://127.0.0.1:8080/');
 ## 通过工厂方法 `create` 创建客户端
 
 ```php
-$client = \Hprose\Client::create($uris = null[, $async = true]);
+$client = \Hprose\Client::create($uriList = null[, $async = true]);
 ```
 
-`create` 方法与构造器函数的参数一样，返回结果也一样。但是第一个参数 `$uris` 不能被省略。
+`create` 方法与构造器函数的参数一样，返回结果也一样。但是第一个参数 `$uriList` 不能被省略。
 
 使用 `create` 方法更加方便，因此，除非在创建客户端的时候，不想指定服务地址，否则，应该优先考虑使用 `create` 方法来创建客户端。
 
@@ -212,10 +212,6 @@ function onFailswitch($client);
 
 只读属性。字符串类型，表示当前客户端所调用的服务地址。
 
-## uris 属性
-
-只读属性。数组类型，表示当前客户端可以调用的服务器地址列表。
-
 ## filters 属性
 
 只读属性。数组类型，表示当前客户端上添加的过滤器列表。
@@ -230,7 +226,7 @@ function onFailswitch($client);
 
 ## failround 属性
 
-整数类型，只读属性。初始值为 `0`。当调用中发生服务地址切换时，如果服务列表中所有的服务地址都切换过一遍之后，该属性值会加 `1`。你可以根据该属性来决定是否更新服务列表。更新服务列表可以使用 `useService` 方法。
+整数类型，只读属性。初始值为 `0`。当调用中发生服务地址切换时，如果服务列表中所有的服务地址都切换过一遍之后，该属性值会加 `1`。你可以根据该属性来决定是否更新服务列表。更新服务列表可以使用 `setUriList` 方法。
 
 ## idempotent 属性
 
@@ -259,6 +255,14 @@ function onFailswitch($client);
 ## close 方法
 
 关闭客户端。它会在析构方法中被自动调用，因此，你通常不需要手动调用它。
+
+## getUriList 方法
+
+获取服务器列表。
+
+## setUriList 方法
+
+设置服务器列表。
 
 ## getTimeout 方法
 
@@ -331,14 +335,14 @@ function onFailswitch($client);
 ## useService 方法
 
 ```php
-function useService([$uris = array()[, $namespace = '']]);
+function useService([$uriList = array()[, $namespace = '']]);
 ```
 
 该方法两个参数都是可选的。
 
 该方法返回值为一个 `\Hprose\Proxy` 对象。该对象是远程服务调用代理对象，你可以在上面直接调用远程方法。
 
-当设置了 `$uris` 参数时，跟上面的功能相同，但是会替换当前的 `$uris` 设置。`$uris` 可以是单个地址，也可以是一个服务地址列表。
+当设置了 `$uriList` 参数时，跟上面的功能相同，但是会替换当前的 `$uriList` 设置。`$uriList` 可以是单个地址，也可以是一个服务地址列表。
 
 参数 `$namespace` 是远程服务的名称空间，它本质上是方法名的别名前缀。例如，服务器端发布的方法名是：`user_add`，`user_remove`，`user_update`, `user_get`。那么可以这样使用：
 
