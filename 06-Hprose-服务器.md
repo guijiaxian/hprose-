@@ -581,3 +581,8 @@ public function addAsyncClassMethods($class[, $scope = ''[, $aliasPrefix = ''[, 
 ## remove 方法
 
 该方法与 `add` 功能相反。使用该方法可以移除已经发布的函数，方法或者推送主题。该方法的参数为发布的远程方法的别名。注意：该别名是大小写敏感的。
+
+
+## 在RPC方法中获取当前 $context 对象
+
+在 addFunction 时给设置 passContext = true 参数可以在 RCP 回调的方法在最后一个参数传进去，但是这样做需要改动回调函数比较麻烦，那么可以在RPC回调方法里直接使用 `$context = Hprose\Service::getCurrentContext()` 获取到，如果是协程的，使用 `$context = Hprose\Service::getCurrentContextCo()` 方法获取。
