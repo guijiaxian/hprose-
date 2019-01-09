@@ -430,11 +430,11 @@ string(12) "Hello world!"
 
 但是我们发现，这里使用 Hprose 中间件要写的代码比起 Hprose 过滤器来要多一些。主要原因是在 Hprose 中间件中，`$next` 的返回值为 `promise` 对象，需要异步处理，而 Hprose 过滤器只需要同步处理就可以了。在这个例子中，我们是直接使用 `Future\run` 来处理异步结果的。
 
-另外，因为这个例子中，我们没有使用过滤器功能，因此使用 `addBeforeFilterHander` 方法或者 `addAfterFilterHandler` 方法添加中间件处理器效果都是一样的。
+另外，因为这个例子中，我们没有使用过滤器功能，因此使用 `addBeforeFilterHandler` 方法或者 `addAfterFilterHandler` 方法添加中间件处理器效果都是一样的。
 
-但如果我们使用了过滤器的话，那么 `addBeforeFilterHander` 添加的中间件处理器的 `$request` 数据是未经过过滤器处理的。过滤器的处理操作在 `$next` 的最后一环中执行。`$next` 返回的响应 `$response` 是经过过滤器处理的。
+但如果我们使用了过滤器的话，那么 `addBeforeFilterHandler` 添加的中间件处理器的 `$request` 数据是未经过过滤器处理的。过滤器的处理操作在 `$next` 的最后一环中执行。`$next` 返回的响应 `$response` 是经过过滤器处理的。
 
-如果某个通过 `addBeforeFilterHander` 添加的中间件处理器跳过了 `$next` 而直接返回了结果的话，则返回的 `$response` 也是未经过过滤器处理的。而且如果某个 `addBeforeFilterHander` 添加的中间件处理器跳过了 `$next`，不但过滤器不会执行，而且在它之后使用 `addBeforeFilterHander` 所添加的中间件处理器也不会执行，`addAfterFilterHandler` 方法所添加的所有中间件处理器也都不会执行。
+如果某个通过 `addBeforeFilterHandler` 添加的中间件处理器跳过了 `$next` 而直接返回了结果的话，则返回的 `$response` 也是未经过过滤器处理的。而且如果某个 `addBeforeFilterHandler` 添加的中间件处理器跳过了 `$next`，不但过滤器不会执行，而且在它之后使用 `addBeforeFilterHandler` 所添加的中间件处理器也不会执行，`addAfterFilterHandler` 方法所添加的所有中间件处理器也都不会执行。
 
 而 `addAfterFilterHandler` 添加的处理器所收到的 `$request` 都是经过过滤器处理以后的，但它当中使用 `$next` 方法返回的  `$response` 是未经过过滤器处理的。
 
